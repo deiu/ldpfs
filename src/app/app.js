@@ -138,22 +138,10 @@ angular.module( 'App', [
       }
       // get some basic info
       var name = g.any(webidRes, FOAF('name'));
-      var pic = g.any(webidRes, FOAF('img'));
-      var depic = g.any(webidRes, FOAF('depiction'));
-      // get storage endpoints
-      var storage = g.any(webidRes, SPACE('storage'));
-      // get list of delegatees
-      var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
-      /*
-      if (delegs.length > 0) {
-        jQuery.ajaxPrefilter(function(options) {
-          options.url = AUTH_PROXY + encodeURIComponent(options.url);
-        });
-      }
-      */
       // Clean up name
       name = (name)?name.value:'';
-
+      var pic = g.any(webidRes, FOAF('img'));
+      var depic = g.any(webidRes, FOAF('depiction'));
       // set avatar picture
       if (pic) {
         pic = pic.value;
@@ -164,58 +152,39 @@ angular.module( 'App', [
           pic = 'assets/generic_photo.png';
         }
       }
-
-      var _user = {
-        webid: webid,
-        name: name,
-        picture: pic,
-        storagespace: storage
-      };
-
-      // add to search object if it was the object of a search
-      if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-        $scope.search = _user;
-      }
-
-      if (update) {
-        $scope.refreshinguser = true;
-        $scope.users[webid].name = name;
-        $scope.users[webid].picture = pic;
-        $scope.users[webid].storagespace = storage;
-      }
-
-      // get channels for the user
+      // get storage endpoints
+      var storage = g.any(webidRes, SPACE('storage'));
       if (storage !== undefined) {
         storage = storage.value;
-        // get channels for user
-        // $scope.getChannels(storage, webid, mine, update);
       } else {
         $scope.gotstorage = false;
       }
-
-      if (mine) { // mine
-        $scope.userProfile.name = name;
-        $scope.userProfile.picture = pic;
-        $scope.userProfile.storagespace = storage;
-
-        // find microblogging feeds/channels
-        if (!storage) {
-          $scope.loading = false; // hide spinner
-        }
-
-        // cache user credentials in sessionStorage
-        $scope.saveCredentials();
-
-        // update DOM
-        $scope.loggedin = true;
-        $scope.profileloading = false;
-        ngProgress.complete();
-        $scope.$apply();
+      /*
+      if (delegs.length > 0) {
+        jQuery.ajaxPrefilter(function(options) {
+          options.url = AUTH_PROXY + encodeURIComponent(options.url);
+        });
       }
+      */
+
+      $scope.userProfile.name = name;
+      $scope.userProfile.picture = pic;
+      $scope.userProfile.storagespace = storage;
+
+      // find microblogging feeds/channels
+      if (!storage) {
+        $scope.loading = false; // hide spinner
+      }
+
+      // cache user credentials in sessionStorage
+      $scope.saveCredentials();
+
+      // update DOM
+      $scope.loggedin = true;
+      $scope.profileloading = false;
+      ngProgress.complete();
+      $scope.$apply();
     });
-    if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-      $scope.searchbtn = 'Search';
-    }
   };
 
   $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams){
