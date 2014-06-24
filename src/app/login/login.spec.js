@@ -30,15 +30,13 @@ describe('login section', function() {
   }));
 
   it('should set the userProfile to the value of the WebID', inject(function() {
-    var webid = '//test.rww.io/profile/card#me';
+    var webid = '//example.org/profile/card#me';
     // AngularJS does not encode : anymore so we have to hack around it
     httpBackend.expectGET('http://api.webizen.org/v1/search?q='+'https:'+encodeURIComponent(webid)).respond(200, '');
 
     $scope.login('https:'+webid);
     expect($scope.userProfile.webid).toEqual('https:'+webid);
-    expect($location.$$path).toEqual('/home');
     expect($scope.showLogin).toBeFalsy();
-    expect($root.loginSuccess).toBeTruthy();
     httpBackend.flush();
   }));
 

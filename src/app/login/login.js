@@ -2,7 +2,8 @@
  * Login page
  */
 angular.module( 'App.login', [
-  'ui.router'
+  'ui.router',
+  'ngProgress'
 ])
 
 /**
@@ -26,7 +27,7 @@ angular.module( 'App.login', [
 /**
  * And of course we define a controller for our route.
  */
-.controller( 'LoginCtrl', function LoginController( $scope, $http, $location, $sce ) {
+.controller( 'LoginCtrl', function LoginController( $scope, $http, $location, $sce, ngProgress ) {
  
   // login/signup widget source
   var providerURI = '//linkeddata.github.io/signup/index.html?ref=';
@@ -47,14 +48,98 @@ angular.module( 'App.login', [
         }
       });
       // set the user in the main controller and redirect to home page
-      $scope.$parent.userProfile = $scope.userProfile;
-      $location.path('/home');
+      $scope.getUserProfile(webid);
     } else {
       // notify('Error', 'WebID-TLS authentication failed.');
     }
     $scope.showLogin = false;
-    $scope.$apply();
   };
+
+// cache user credentials in sessionStorage to avoid double sign in
+  $scope.saveCredentials = function () {
+    var app = {};
+    var _user = {};
+    app.userProfile = $scope.userProfile;
+    sessionStorage.setItem($scope.appuri, JSON.stringify(app));
+  };
+
+  // get relevant info for a webid
+  $scope.getUserProfile = function(webid) {
+    if (DEBUG) {
+      console.log("Getting user info for: "+webid);
+    }
+    // start progress bar
+    ngProgress.start();
+
+    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+    var ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
+    var g = $rdf.graph();
+    var f = $rdf.fetcher(g, TIMEOUT);
+    // add CORS proxy
+    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+
+    var docURI = webid.slice(0, webid.indexOf('#'));
+    var webidRes = $rdf.sym(webid);
+
+    // fetch user data
+    f.nowOrWhenFetched(docURI,undefined,function(ok, body) {
+      if (!ok) {
+        if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+          notify('Warning', 'WebID profile not found.');
+          $scope.found = false;
+          $scope.searchbtn = 'Search';
+          // reset progress bar
+          ngProgress.reset();
+          $scope.$apply();
+        }
+      }
+      // get some basic info
+      var name = g.any(webidRes, FOAF('name'));
+      // Clean up name
+      name = (name)?name.value:'';
+      var pic = g.any(webidRes, FOAF('img'));
+      var depic = g.any(webidRes, FOAF('depiction'));
+      // set avatar picture
+      if (pic) {
+        pic = pic.value;
+      } else {
+        if (depic) {
+          pic = depic.value;
+        } else {
+          pic = 'assets/generic_photo.png';
+        }
+      }
+      // get storage endpoints
+      var storage = g.any(webidRes, SPACE('storage'));
+      if (storage !== undefined) {
+        storage = storage.value;
+      }
+      /*
+      if (delegs.length > 0) {
+        jQuery.ajaxPrefilter(function(options) {
+          options.url = AUTH_PROXY + encodeURIComponent(options.url);
+        });
+      }
+      */
+      $scope.userProfile.webid = webid;
+      $scope.userProfile.name = name;
+      $scope.userProfile.picture = pic;
+      $scope.userProfile.storagespace = storage;
+
+      $scope.$parent.userProfile = $scope.userProfile;
+
+      // cache user credentials in sessionStorage
+      $scope.saveCredentials();
+
+      // update DOM
+      ngProgress.complete();
+      $scope.$apply();
+      $location.path('/home');
+    });
+  };
+
 
   $scope.hideMenu = function() {
     $scope.$parent.showMenu = false;
