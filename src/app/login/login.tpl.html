@@ -1,12 +1,11 @@
 <div ng-click="hideMenu()">
-  <div class="panel-body col-md-12" ng-hide="showLogin">
+  <div class="panel-body col-md-12">
     <div class="panel-body">
-      <h2 class="text-center">Welcome to your first LD Web app!</h2>
-      <div class="text-center">
-        <h3>You must be authenticated in order to use this application.</h3>
-        <p><button class="btn btn-primary btn-sep-right" ng-click="showLogin=!showLogin">Login / Sign Up</button></p>
-      </div>
-    </div>
+        <h2 class="text-center">Welcome to your first LD Web app!</h2>
+        <div class="text-center" ng-hide="loginSuccess">
+          <h3>You must be authenticated in order to use this application.</h3>
+          <p ng-hide="showLogin"><button class="btn btn-primary btn-sep-right" ng-click="showLogin=!showLogin">Login / Sign Up</button></p>
+        </div>
   </div>
 
   <!--login screen -->

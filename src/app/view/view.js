@@ -12,7 +12,7 @@
  * The dependencies block here is also where component dependencies should be
  * specified, as shown below.
  */
-angular.module( 'App.home', [
+angular.module( 'App.view', [
   'ui.router'
 ])
 
@@ -21,27 +21,43 @@ angular.module( 'App.home', [
  * will handle ensuring they are all available at run-time, but splitting it
  * this way makes each module more "self-contained".
  */
-.config(function HomeConfig( $stateProvider ) {
-  $stateProvider.state( 'home', {
-    url: '/home',
+.config(function ViewConfig( $stateProvider ) {
+  $stateProvider.state( 'view', {
+    url: '/view/{path:.*}',
     views: {
       "main": {
-        controller: 'HomeCtrl',
-        templateUrl: 'home/home.tpl.html'
+        controller: 'ViewCtrl',
+        templateUrl: 'view/view.tpl.html'
       }
     },
-    data:{ pageTitle: 'Home' }
+    data:{ pageTitle: 'View' }
   });
 })
 
 /**
  * And of course we define a controller for our route.
  */
-.controller( 'HomeCtrl', function HomeController( $scope, $http, $location, $sce ) {
-
+.controller( 'ViewCtrl', function ViewController( $scope, $http, $location, $sce, $stateParams ) {
   $scope.hideMenu = function() {
     $scope.$parent.showMenu = false;
   };
 
+  $scope.dirPath = [];
+
+  // TODO: check for (saved) schema
+  $scope.path = 'https://'+$stateParams.path;
+  console.log("Requested: "+$scope.path); // debug
+
+  var elms = $stateParams.path.split("/");
+  var path = '';
+  for (i=0; i<elms.length; i++) {
+    path = (i===0)?elms[0]+'/':path+elms[i]+'/';
+    var dir = {
+      uri: path,
+      name: elms[i]
+    };
+
+    $scope.dirPath.push(dir);
+  }
 
  });

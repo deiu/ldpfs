@@ -28,7 +28,8 @@ angular.module( 'App.login', [
  * And of course we define a controller for our route.
  */
 .controller( 'LoginCtrl', function LoginController( $scope, $http, $location, $sce, ngProgress ) {
- 
+  $scope.loginSuccess = false;
+  $scope.showLogin = false;
   // login/signup widget source
   var providerURI = '//linkeddata.github.io/signup/index.html?ref=';
     
@@ -40,7 +41,7 @@ angular.module( 'App.login', [
     if (webid && (webid.substr(0, 4) == 'http')) {
       $scope.userProfile = {};
       $scope.userProfile.webid = webid;
-      $scope.$parent.loginSuccess = true;
+      $scope.loginSuccess = true;
       // index or update the authenticated WebID on webizen.org
       $http.get('http://api.webizen.org/v1/search', {
         params: {
@@ -49,8 +50,9 @@ angular.module( 'App.login', [
       });
       // set the user in the main controller and redirect to home page
       $scope.getUserProfile(webid);
+      notify('', 'Authentication successful!');
     } else {
-      // notify('Error', 'WebID-TLS authentication failed.');
+      notify('', 'WebID-TLS authentication failed.');
     }
     $scope.showLogin = false;
   };
@@ -116,13 +118,7 @@ angular.module( 'App.login', [
       if (storage !== undefined) {
         storage = storage.value;
       }
-      /*
-      if (delegs.length > 0) {
-        jQuery.ajaxPrefilter(function(options) {
-          options.url = AUTH_PROXY + encodeURIComponent(options.url);
-        });
-      }
-      */
+      
       $scope.userProfile.webid = webid;
       $scope.userProfile.name = name;
       $scope.userProfile.picture = pic;
@@ -136,10 +132,9 @@ angular.module( 'App.login', [
       // update DOM
       ngProgress.complete();
       $scope.$apply();
-      $location.path('/home');
+      $location.path('/view/'+storage.slice(storage.indexOf('://')+3, storage.length));
     });
   };
-
 
   $scope.hideMenu = function() {
     $scope.$parent.showMenu = false;
