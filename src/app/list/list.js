@@ -26,7 +26,7 @@ basename = function(path) {
     return a[a.length - 1];
 };
 
-angular.module( 'App.view', [
+angular.module( 'App.list', [
   'ui.router',
   'ngProgress'
 ])
@@ -47,22 +47,22 @@ angular.module( 'App.view', [
  * this way makes each module more "self-contained".
  */
 .config(function ViewConfig( $stateProvider ) {
-  $stateProvider.state( 'view', {
-    url: '/view/{path:.*}',
+  $stateProvider.state( 'list', {
+    url: '/list/{path:.*}',
     views: {
       "main": {
-        controller: 'ViewCtrl',
-        templateUrl: 'view/view.tpl.html'
+        controller: 'ListCtrl',
+        templateUrl: 'list/list.tpl.html'
       }
     },
-    data:{ pageTitle: 'View' }
+    data:{ pageTitle: 'Listing contents' }
   });
 })
 
 /**
  * And of course we define a controller for our route.
  */
-.controller( 'ViewCtrl', function ViewController( $scope, $http, $location, $sce, $stateParams, ngProgress ) {
+.controller( 'ListCtrl', function ListController( $scope, $http, $location, $sce, $stateParams, ngProgress ) {
   $scope.hideMenu = function() {
     $scope.$parent.showMenu = false;
   };
@@ -83,7 +83,7 @@ angular.module( 'App.view', [
     if (elms[i].length > 0) {
       path = (i===0)?elms[0]+'/':path+elms[i]+'/';
       var dir = {
-        uri: path,
+        uri: '#/list/'+path,
         name: elms[i]
       };
 

@@ -8,7 +8,7 @@ var DEBUG = true;
 angular.module( 'App', [
   'templates-app',
   'templates-common',
-  'App.view',
+  'App.list',
   'App.login',
   'App.about',
   'ui.router'

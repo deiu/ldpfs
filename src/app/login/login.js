@@ -133,7 +133,7 @@ angular.module( 'App.login', [
       // update DOM
       ngProgress.complete();
       $scope.$apply();
-      $location.path('/view/'+storage.slice(storage.indexOf('://')+3, storage.length));
+      $location.path('/list/'+storage.slice(storage.indexOf('://')+3, storage.length));
     });
   };
 

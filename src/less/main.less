@@ -97,6 +97,10 @@ h2 {
     border-top: 1px solid #DDD;
   }
 
+  .container {
+    margin-left: 0px;
+  }
+
   .social {
     float: right;
     margin: 0;
@@ -148,7 +152,7 @@ h2 {
   -o-transition: left .3s;
   transition: left .3s;
   width: 150px;
-  background-color: #2A3137;
+  background-color: #34495e;
   position: absolute;
   min-height: 700px;
   top: 0px;
@@ -223,7 +227,7 @@ h2 {
 }
 
 .light-grey {
-  color: #F1F1F1;
+  color: #ddd;
 }
 
 .dark-grey {
@@ -258,6 +262,11 @@ h2 {
   background-color: #EA250B;
   border-color: #FF3C1F;
 }
+.open .dropdown-toggle.btn-primary {
+  background-color: #EA250B;
+  border-color: #FF3C1F;
+}
+
 
 /**
  * Now that all app-wide styles have been applied, we can load the styles for
@@ -266,5 +275,5 @@ h2 {
  * TODO: In a later version of this boilerplate, I'd like to automate this.
  */
 
-@import '../app/view/view.less';
+@import '../app/list/list.less';
 
