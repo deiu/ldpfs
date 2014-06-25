@@ -97,6 +97,7 @@ angular.module( 'App.login', [
           $scope.$apply();
         }
       }
+
       // get some basic info
       var name = g.any(webidRes, FOAF('name'));
       // Clean up name
