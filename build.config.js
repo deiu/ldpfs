@@ -20,7 +20,7 @@ module.exports = {
    * app's unit tests.
    */
   app_files: {
-    js: [ 'src/**/*.js', '!src/**/*.spec.js', '!src/assets/**/*.js' ],
+    js: [ 'src/**/*.js', '!src/**/*.spec.js', 'src/assets/**/*.js' ],
     jsunit: [ 'src/**/*.spec.js' ],
     
     coffee: [ 'src/**/*.coffee', '!src/**/*.spec.coffee' ],
@@ -78,6 +78,7 @@ module.exports = {
       'vendor/ngProgress/ngProgress.less',
     ],
     assets: [
+      'src/app/assets/background.png'
     ]
   },
 };

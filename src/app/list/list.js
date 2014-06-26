@@ -13,22 +13,11 @@
  * specified, as shown below.
  */
 
-dirname = function(path) {
-    return path.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '');
-};
-
-basename = function(path) {
-    if (path.substring(path.length - 1) == '/') {
-      path = path.substring(0, path.length - 1);
-    }
-
-    var a = path.split('/');
-    return a[a.length - 1];
-};
-
 angular.module( 'App.list', [
   'ui.router',
-  'ngProgress'
+  'ngProgress',
+  'ui.bootstrap',
+  'ui.bootstrap.tpls'
 ])
 
 
@@ -38,6 +27,12 @@ angular.module( 'App.list', [
 .filter('fromNow', function() {
   return function(date) {
     return moment(date*1000).format('YYYY-MM-DD, h:mm:ss a');
+  };
+})
+
+.filter('fileSize', function() {
+  return function(bytes) {
+    return humanFileSize(bytes);
   };
 })
 
@@ -55,14 +50,14 @@ angular.module( 'App.list', [
         templateUrl: 'list/list.tpl.html'
       }
     },
-    data:{ pageTitle: 'Listing contents' }
+    data:{ pageTitle: 'Listing container' }
   });
 })
 
 /**
  * And of course we define a controller for our route.
  */
-.controller( 'ListCtrl', function ListController( $scope, $http, $location, $sce, $stateParams, ngProgress ) {
+.controller( 'ListCtrl', function ListController( $scope, $http, $location, $modal, $sce, $stateParams, ngProgress ) {
   $scope.hideMenu = function() {
     $scope.$parent.showMenu = false;
   };
@@ -148,13 +143,47 @@ angular.module( 'App.list', [
         };
         $scope.resources.push(f);
       }
-      console.log($scope.resources);
 
       ngProgress.complete();
       $scope.$apply();
     });
   };
 
+  $scope.openNewDir = function (size) {
+    var modalInstance = $modal.open({
+      templateUrl: 'newDirContent.html',
+      controller: ModalInstanceCtrl,
+      size: 'sm'
+    });
+  };
+
+  $scope.openNewFile = function (size) {
+    var modalInstance = $modal.open({
+      templateUrl: 'newFileContent.html',
+      controller: ModalInstanceCtrl,
+      size: 'sm'
+    });
+  };
+
+  $scope.openNewUpload = function (size) {
+    var modalInstance = $modal.open({
+      templateUrl: 'newUploadContent.html',
+      controller: ModalInstanceCtrl,
+      size: 'sm'
+    });
+  };
+
   $scope.listDir($scope.path);
 
  });
+
+var ModalInstanceCtrl = function ($scope, $modalInstance) {
+
+  $scope.ok = function () {
+    $modalInstance.close();
+  };
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+};
