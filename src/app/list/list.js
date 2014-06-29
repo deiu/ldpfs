@@ -17,22 +17,55 @@ angular.module( 'App.list', [
   'ui.router',
   'ngProgress',
   'ui.bootstrap',
-  'ui.bootstrap.tpls'
+  'ui.bootstrap.tpls',
+  'flow'
 ])
 
 
 /**
  * Filters
  */
-.filter('fromNow', function() {
+.filter('classicDate', function() {
   return function(date) {
     return moment(date*1000).format('YYYY-MM-DD, h:mm:ss a');
   };
 })
 
+.filter('fromNow', function() {
+  return function(date) {
+    return moment(date*1000).fromNow();
+  };
+})
+
+
 .filter('fileSize', function() {
   return function(bytes) {
     return humanFileSize(bytes);
+  };
+})
+
+
+/**
+ * Custom directives
+ */
+.directive('fileDrag', function () {
+  return {
+    restrict: 'A',
+    link: function (scope, elem) {
+      elem.bind('drop', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        var file = e.dataTransfer.files[0], reader = new FileReader();
+          reader.onload = function (event) {
+          console.log(event.target);
+          elem.style.background = 'url(' + event.target.result + ') no-repeat center';
+        };
+        console.log(file);
+        reader.readAsDataURL(file);
+
+        return false;
+      });
+    }
   };
 })
 
@@ -53,6 +86,20 @@ angular.module( 'App.list', [
     data:{ pageTitle: 'Listing container' }
   });
 })
+
+.config(['flowFactoryProvider', function (flowFactoryProvider) {
+  flowFactoryProvider.defaults = {
+    permanentErrors: [404, 500, 501],
+    maxChunkRetries: 1,
+    chunkRetryInterval: 5000,
+    simultaneousUploads: 4
+  };
+  flowFactoryProvider.on('catchAll', function (event) {
+    console.log('catchAll', arguments);
+  });
+  // Can be used with different implementations of Flow.js
+  // flowFactoryProvider.factory = fustyFlowFactory;
+}])
 
 /**
  * And of course we define a controller for our route.
@@ -88,6 +135,7 @@ angular.module( 'App.list', [
 
   $scope.listDir = function (url) {
     // start progress bar
+    ngProgress.reset();
     ngProgress.start();
 
     var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
@@ -104,20 +152,25 @@ angular.module( 'App.list', [
     f.nowOrWhenFetched(url,undefined,function(ok, body) {
       if (!ok) {
         notify('', 'Could not fetch dir listing.');
-        // reset progress bar
         ngProgress.reset();
         $scope.$apply();
+
+        console.log(ok);
+        console.log(body);
       }
 
       var dirs = g.statementsMatching(undefined, RDF("type"), POSIX("Directory"));
-      for (var i in dirs) {
+      for ( var i in dirs ) {
+        if ( dirs[i].subject.uri.split('://')[1].split('/').length <= 2 ) {
+          continue;
+        }
+
         var d = {};
-        var isRoot = (url.split('://')[1].split('/').length <= 2)?true:false;
-        if (dirs[i].subject.uri == url) {
+        if ( dirs[i].subject.uri == url ) {
           d = {
-            uri: (isRoot)?document.location.href:dirname(document.location.href)+'/',
-            type: 'Directory',
-            name: (isRoot)?'/':'../',
+            uri: dirname(document.location.href)+'/',
+            type: 'Parent',
+            name: '../',
             mtime: g.any(dirs[i].subject, POSIX("mtime")).value,
             size: '-'
           };
@@ -135,7 +188,7 @@ angular.module( 'App.list', [
       var files = g.statementsMatching(undefined, RDF("type"), RDFS("Resource"));
       for (i in files) {
         var f = {
-          uri: document.location.href+basename(files[i].subject.uri),
+          uri: '#/view/'+stripSchema(files[i].subject.uri),
           type: 'File', // TODO: use the real type
           name: basename(files[i].subject.value),
           mtime: g.any(files[i].subject, POSIX("mtime")).value,
@@ -151,7 +204,7 @@ angular.module( 'App.list', [
 
   $scope.openNewDir = function (size) {
     var modalInstance = $modal.open({
-      templateUrl: 'newDirContent.html',
+      templateUrl: 'list/newdir.tpl.html',
       controller: ModalInstanceCtrl,
       size: 'sm'
     });
@@ -159,7 +212,7 @@ angular.module( 'App.list', [
 
   $scope.openNewFile = function (size) {
     var modalInstance = $modal.open({
-      templateUrl: 'newFileContent.html',
+      templateUrl: 'list/newfile.tpl.html',
       controller: ModalInstanceCtrl,
       size: 'sm'
     });
@@ -167,7 +220,7 @@ angular.module( 'App.list', [
 
   $scope.openNewUpload = function (size) {
     var modalInstance = $modal.open({
-      templateUrl: 'newUploadContent.html',
+      templateUrl: 'list/upload.tpl.html',
       controller: ModalInstanceCtrl,
       size: 'sm'
     });

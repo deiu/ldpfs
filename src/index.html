@@ -17,7 +17,7 @@
     <!-- compiled JavaScript --><% scripts.forEach( function ( file ) { %>
     <script type="text/javascript" src="<%= file %>"></script><% }); %>
   </head>
-  <body>
+  <body flow-prevent-drop>
     <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu">
       <button type="button" ng-click="showMenu=!showMenu" class="btn btn-primary icon-bars-button" alt="Toggle navigation">
         <span class="icon-bar"></span>

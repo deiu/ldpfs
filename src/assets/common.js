@@ -1,3 +1,6 @@
+stripSchema = function (uri) {
+    return uri.slice(uri.indexOf('://')+3, uri.length);
+};
 
 humanFileSize = function (bytes, si) {
     if (bytes == '-') {
