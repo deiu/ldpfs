@@ -64,16 +64,21 @@ angular.module( 'App', [
   // initialize by retrieving user info from sessionStorage
   // retrieve from sessionStorage
   if (sessionStorage.getItem($scope.appuri)) {
-      var app = JSON.parse(sessionStorage.getItem($scope.appuri));
-      if (app.userProfile) {
-        if (!$scope.userProfile) {
-          $scope.userProfile = {};
-        }
-        $scope.userProfile = app.userProfile;
-        $scope.loggedin = true;
-      } else {
-        // clear sessionStorage in case there was a change to the data structure
-        sessionStorage.removeItem($scope.appuri);
+    var app = JSON.parse(sessionStorage.getItem($scope.appuri));
+    if (app.userProfile) {
+      if (!$scope.userProfile) {
+        $scope.userProfile = {};
       }
+      $scope.userProfile = app.userProfile;
+      $scope.loggedin = true;
+    } else {
+      // clear sessionStorage in case there was a change to the data structure
+      sessionStorage.removeItem($scope.appuri);
     }
+  }
+
+  $scope.authorizeNotifications = function() {
+    authorizeNotifications();
+  };
+
 });

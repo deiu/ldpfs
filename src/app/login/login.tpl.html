@@ -1,8 +1,8 @@
 <div ng-click="hideMenu()">
   <div class="panel-body col-md-12">
     <div class="panel-body">
-        <h2 class="text-center">Welcome to your first LD Web app!</h2>
-        <div class="text-center" ng-hide="loginSuccess">
+        <h2>Welcome to LDP File Manager!</h2>
+        <div ng-hide="loginSuccess">
           <h3>You must be authenticated in order to use this application.</h3>
           <p ng-hide="showLogin"><button class="btn btn-primary btn-sep-right" ng-click="showLogin=!showLogin">Login / Sign Up</button></p>
         </div>
@@ -11,7 +11,7 @@
   <!--login screen -->
   <div ng-show="showLogin">
     <div class="login-frame">
-      <h2 class="text-center">Login / Sign Up</h2>
+      <h2>Login / Sign Up</h2>
 
       <iframe ng-src="{{signupWidget}}" sandbox="allow-same-origin allow-scripts allow-forms" frameborder="0"></iframe>
 

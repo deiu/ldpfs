@@ -44,31 +44,6 @@ angular.module( 'App.list', [
   };
 })
 
-
-/**
- * Custom directives
- */
-.directive('fileDrag', function () {
-  return {
-    restrict: 'A',
-    link: function (scope, elem) {
-      elem.bind('drop', function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        var file = e.dataTransfer.files[0], reader = new FileReader();
-          reader.onload = function (event) {
-          console.log(event.target);
-          elem.style.background = 'url(' + event.target.result + ') no-repeat center';
-        };
-        console.log(file);
-        reader.readAsDataURL(file);
-
-        return false;
-      });
-    }
-  };
-})
-
 /**
  * Each section or module of the site can also have its own routes. AngularJS
  * will handle ensuring they are all available at run-time, but splitting it
@@ -112,7 +87,7 @@ angular.module( 'App.list', [
   // variables
   var storage = $scope.$parent.userProfile.storagespace;
   var schema = (storage !== undefined)?storage.slice(0, storage.indexOf('://')):$location.$$protocol;
-  $scope.resources = [];
+  $scope.resources = {};
   $scope.dirPath = [];
 
   // TODO: check for (saved) schema
@@ -151,7 +126,7 @@ angular.module( 'App.list', [
     // fetch user data
     f.nowOrWhenFetched(url,undefined,function(ok, body) {
       if (!ok) {
-        notify('', 'Could not fetch dir listing.');
+        notify('Error', 'Could not fetch dir listing.');
         ngProgress.reset();
         $scope.$apply();
 
@@ -168,69 +143,156 @@ angular.module( 'App.list', [
         var d = {};
         if ( dirs[i].subject.uri == url ) {
           d = {
-            uri: dirname(document.location.href)+'/',
-            type: 'Parent',
+            uri: dirs[i].subject.uri,
+            path: dirname(document.location.href)+'/',
+            rtype: 'Parent',
             name: '../',
             mtime: g.any(dirs[i].subject, POSIX("mtime")).value,
             size: '-'
           };
         } else {
           d = {
-            uri: document.location.href+basename(dirs[i].subject.uri)+'/',
-            type: 'Directory',
+            uri: dirs[i].subject.uri,
+            path: document.location.href+basename(dirs[i].subject.uri)+'/',
+            rtype: 'Directory',
             name: basename(dirs[i].subject.value),
             mtime: g.any(dirs[i].subject, POSIX("mtime")).value,
             size: '-'
           };
         }
-        $scope.resources.push(d);
+        $scope.resources[dirs[i].subject.uri] = d;
       }
       var files = g.statementsMatching(undefined, RDF("type"), RDFS("Resource"));
       for (i in files) {
         var f = {
-          uri: '#/view/'+stripSchema(files[i].subject.uri),
-          type: 'File', // TODO: use the real type
+          uri: files[i].subject.uri,
+          path: '#/view/'+stripSchema(files[i].subject.uri),
+          rtype: 'File', // TODO: use the real type
           name: basename(files[i].subject.value),
           mtime: g.any(files[i].subject, POSIX("mtime")).value,
           size: g.any(files[i].subject, POSIX("size")).value
         };
-        $scope.resources.push(f);
+        $scope.resources[files[i].subject.uri] = f;
       }
 
       ngProgress.complete();
+      notify('Success', 'Displaying files!');
       $scope.$apply();
     });
   };
 
-  $scope.openNewDir = function (size) {
+  $scope.upload = function () {
+    console.log("Uploading files");
+    console.log($flow.files);
+  };
+
+  $scope.newDir = function(dirName) {
+    console.log('Dirname: '+dirName);
+    $http({
+      method: 'MKCOL', 
+      url: $scope.path+dirName,
+      withCredentials: true
+    }).
+    success(function(data, status) {
+      if (status == 200 || status == 201) {
+        notify('Success', 'Directory created.');
+      }
+    }).
+    error(function(data, status) {
+      if (status == 401) {
+        notify('Error', 'You must authenticate.');
+      } else if (status == 403) {
+        notify('Error', 'Insufficient permissions.');
+      } else {
+        notify('Error'+status, data);
+      }
+    });
+  };
+
+  $scope.deleteResource = function(resourceUri) {
+    $http({
+      method: 'DELETE', 
+      url: resourceUri,
+      withCredentials: true
+    }).
+    success(function(data, status) {
+      if (status == 200 || status == 201) {
+        notify('Success', 'Resource was deleted.');
+        removeResource(resourceUri);
+      }
+    }).
+    error(function(data, status) {
+      if (status == 401) {
+        notify('Error', 'You must authenticate.');
+      } else if (status == 403) {
+        notify('Error', 'Insufficient permissions.');
+      } else {
+        notify('Error'+status, data);
+      }
+    });
+  };
+
+  $scope.removeResource = function(uri) {
+    if ($scope.resources && $scope.resources[uri]) {
+      delete $scope.resources[uri];
+    }
+  };
+
+  // New dir dialog
+  $scope.openNewDir = function () {
     var modalInstance = $modal.open({
-      templateUrl: 'list/newdir.tpl.html',
+      templateUrl: 'newdir.html',
+      controller: ModalInstanceCtrl,
+      size: 'sm'
+    });
+    modalInstance.result.then($scope.newDir);
+  };
+  // Remove resource dialog
+  $scope.openDelete = function (uri) {
+    console.log("Calling openDelete for "+uri);
+    var modalInstance = $modal.open({
+      templateUrl: 'delete.html',
+      controller: ModalInstanceCtrl,
+      size: 'sm',
+      resolve: { 
+        delUri: function () {
+          return uri;
+        }
+      }
+    });
+    modalInstance.result.then($scope.deleteResource);
+  };
+  // New file creation dialog
+  $scope.openNewFile = function () {
+    var modalInstance = $modal.open({
+      templateUrl: 'newfile.html',
       controller: ModalInstanceCtrl,
       size: 'sm'
     });
   };
-
-  $scope.openNewFile = function (size) {
+  // New file upload dialog
+  $scope.openNewUpload = function () {
     var modalInstance = $modal.open({
-      templateUrl: 'list/newfile.tpl.html',
-      controller: ModalInstanceCtrl,
-      size: 'sm'
-    });
-  };
-
-  $scope.openNewUpload = function (size) {
-    var modalInstance = $modal.open({
-      templateUrl: 'list/upload.tpl.html',
+      templateUrl: 'uploadfiles.html',
       controller: ModalInstanceCtrl,
       size: 'sm'
     });
   };
 
   $scope.listDir($scope.path);
-
  });
 
-var ModalInstanceCtrl = function ($scope, $modalInstance) {
+// Modals
+var ModalInstanceCtrl = function ($scope, $modalInstance, delUri) {
+  $scope.delUri = delUri;
+
+  $scope.newDir = function(dirName) {
+    $modalInstance.close(dirName);
+  };
+
+  $scope.deleteResource = function() {
+    $modalInstance.close($scope.delUri);
+  };
 
   $scope.ok = function () {
     $modalInstance.close();
@@ -239,4 +301,5 @@ var ModalInstanceCtrl = function ($scope, $modalInstance) {
   $scope.cancel = function () {
     $modalInstance.dismiss('cancel');
   };
+
 };

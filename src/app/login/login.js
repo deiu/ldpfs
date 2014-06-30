@@ -50,9 +50,9 @@ angular.module( 'App.login', [
       });
       // set the user in the main controller and redirect to home page
       $scope.getUserProfile(webid);
-      notify('', 'Authentication successful!');
+      notify('Success', 'Authenticated through WebID-TLS!');
     } else {
-      notify('', 'WebID-TLS authentication failed.');
+      notify('Warning', 'WebID-TLS authentication failed.');
     }
     $scope.showLogin = false;
   };

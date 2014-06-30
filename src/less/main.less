@@ -100,10 +100,6 @@ h2 {
     padding: 40px 0;
   }
 
-  .container {
-    margin-left: 0px;
-  }
-
   .social {
     float: right;
     margin: 0;
@@ -212,7 +208,6 @@ h2 {
 /**
  * Other
  */
-
 .badge {
   position: relative;
   right: -10px;
@@ -241,7 +236,7 @@ h2 {
   float: left;
 }
 
-.pull-left {
+.pull-right {
   float: right;
 }
 
@@ -249,9 +244,8 @@ h2 {
   top: 0px;
 }
 
-.logout {
-  position: absolute;
-  bottom: 0px;
+.vmiddle {
+  vertical-align: middle;
 }
 
 /**
@@ -269,7 +263,22 @@ h2 {
   background-color: #EA250B;
   border-color: #FF3C1F;
 }
+.dropdown-menu-right {
+  right: 0 !important;
+}
 
+/**
+ * Overrides
+ */
+.container {
+  padding-left: 0px !important;
+}
+.modal-dialog {
+  margin-top: 60px !important;
+}
+.modal-body {
+  font-size: 1.1em !important;
+}
 
 /**
  * Now that all app-wide styles have been applied, we can load the styles for

@@ -73,7 +73,7 @@ module.exports = {
       'vendor/rdflib.js/rdflib.js',
       'vendor/notifications/notify.js',
       'vendor/moment/moment.min.js',
-      'vendor/ng-flow/ng-flow.min.js'
+      'vendor/ng-flow/ng-flow-standalone.js'
     ],
     css: [
       'vendor/ngProgress/ngProgress.less',
