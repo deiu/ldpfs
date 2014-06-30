@@ -87,7 +87,7 @@ angular.module( 'App.list', [
   // variables
   var storage = $scope.$parent.userProfile.storagespace;
   var schema = (storage !== undefined)?storage.slice(0, storage.indexOf('://')):$location.$$protocol;
-  $scope.resources = {};
+  $scope.resources = [];
   $scope.dirPath = [];
 
   // TODO: check for (saved) schema
@@ -145,7 +145,7 @@ angular.module( 'App.list', [
           d = {
             uri: dirs[i].subject.uri,
             path: dirname(document.location.href)+'/',
-            rtype: 'Parent',
+            type: 'Parent',
             name: '../',
             mtime: g.any(dirs[i].subject, POSIX("mtime")).value,
             size: '-'
@@ -154,25 +154,25 @@ angular.module( 'App.list', [
           d = {
             uri: dirs[i].subject.uri,
             path: document.location.href+basename(dirs[i].subject.uri)+'/',
-            rtype: 'Directory',
+            type: 'Directory',
             name: basename(dirs[i].subject.value),
             mtime: g.any(dirs[i].subject, POSIX("mtime")).value,
             size: '-'
           };
         }
-        $scope.resources[dirs[i].subject.uri] = d;
+        $scope.resources.push(d);
       }
       var files = g.statementsMatching(undefined, RDF("type"), RDFS("Resource"));
       for (i in files) {
         var f = {
           uri: files[i].subject.uri,
           path: '#/view/'+stripSchema(files[i].subject.uri),
-          rtype: 'File', // TODO: use the real type
+          type: 'File', // TODO: use the real type
           name: basename(files[i].subject.value),
           mtime: g.any(files[i].subject, POSIX("mtime")).value,
           size: g.any(files[i].subject, POSIX("size")).value
         };
-        $scope.resources[files[i].subject.uri] = f;
+        $scope.resources.push(f);
       }
 
       ngProgress.complete();
@@ -218,7 +218,7 @@ angular.module( 'App.list', [
     success(function(data, status) {
       if (status == 200 || status == 201) {
         notify('Success', 'Resource was deleted.');
-        removeResource(resourceUri);
+        $scope.removeResource(resourceUri);
       }
     }).
     error(function(data, status) {
@@ -233,8 +233,12 @@ angular.module( 'App.list', [
   };
 
   $scope.removeResource = function(uri) {
-    if ($scope.resources && $scope.resources[uri]) {
-      delete $scope.resources[uri];
+    if ($scope.resources) {
+      for(var i = $scope.resources.length - 1; i >= 0; i--){
+        if($scope.resources[i].uri == uri){
+            $scope.resources.splice(i,1);
+        }
+      }
     }
   };
 
@@ -242,7 +246,7 @@ angular.module( 'App.list', [
   $scope.openNewDir = function () {
     var modalInstance = $modal.open({
       templateUrl: 'newdir.html',
-      controller: ModalInstanceCtrl,
+      controller: ModalNewDirCtrl,
       size: 'sm'
     });
     modalInstance.result.then($scope.newDir);
@@ -252,7 +256,7 @@ angular.module( 'App.list', [
     console.log("Calling openDelete for "+uri);
     var modalInstance = $modal.open({
       templateUrl: 'delete.html',
-      controller: ModalInstanceCtrl,
+      controller: ModalDeleteCtrl,
       size: 'sm',
       resolve: { 
         delUri: function () {
@@ -283,12 +287,22 @@ angular.module( 'App.list', [
  });
 
 // Modals
-var ModalInstanceCtrl = function ($scope, $modalInstance, delUri) {
-  $scope.delUri = delUri;
-
+var ModalNewDirCtrl = function ($scope, $modalInstance) {
   $scope.newDir = function(dirName) {
     $modalInstance.close(dirName);
   };
+
+  $scope.ok = function () {
+    $modalInstance.close();
+  };
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+};
+
+var ModalDeleteCtrl = function ($scope, $modalInstance, delUri) {
+  $scope.delUri = delUri;
 
   $scope.deleteResource = function() {
     $modalInstance.close($scope.delUri);

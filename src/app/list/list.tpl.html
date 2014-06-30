@@ -32,17 +32,17 @@
 					<th>Modified</th>
 					<th>Actions</th>
 				</thead>
-				<tr ng-repeat="res in resources|orderBy:'rtype':true">
-					<td colspan="{{res.rtype=='Parent'?4:1}}"><a href="{{res.path}}"><i class="fa" ng-class="res.rtype=='Directory'||res.rtype=='Parent'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a></td>
-					<td ng-hide="res.rtype=='Parent'"><a href="{{res.path}}">{{res.size|fileSize}}</a></td>
-					<td ng-hide="res.rtype=='Parent'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}"><a href="{{res.path}}">{{res.mtime|fromNow}}</a></div></td>
-					<td ng-hide="res.rtype=='Parent'">
+				<tr ng-repeat="res in resources">
+					<td colspan="{{res.type=='Parent'?4:1}}"><a href="{{res.path}}"><i class="fa" ng-class="res.type=='Directory'||res.type=='Parent'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a></td>
+					<td ng-hide="res.type=='Parent'"><a href="{{res.path}}">{{res.size|fileSize}}</a></td>
+					<td ng-hide="res.type=='Parent'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}"><a href="{{res.path}}">{{res.mtime|fromNow}}</a></div></td>
+					<td ng-hide="res.type=='Parent'">
 						<div class="btn-group" dropdown is-open="status.isopen">
               <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
                 Action <span class="caret"></span>
               </button>
 					      <ul class="dropdown-menu dropdown-menu-right" role="menu">
-					        <li><a href="#" ng-show="res.rtype != 'Directory'"><i class="fa fa-2x fa-pencil-square-o fa-fw vmiddle"></i> View/Edit</a></li>
+					        <li><a href="#" ng-show="res.type != 'Directory'"><i class="fa fa-2x fa-pencil-square-o fa-fw vmiddle"></i> View/Edit</a></li>
 					        <li><a href="#"><i class="fa fa-2x fa-unlock-alt fa-fw vmiddle"></i> Permissions</a></li>
 					        <li><a href ng-click="openDelete(res.uri)"><i class="fa fa-2x fa-trash-o fa-fw vmiddle"></i> Delete</a></li>
 					      </ul>
