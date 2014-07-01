@@ -34,8 +34,8 @@
 				</thead>
 				<tr ng-repeat="res in resources">
 					<td colspan="{{res.type=='Parent'?4:1}}"><a href="{{res.path}}"><i class="fa" ng-class="res.type=='Directory'||res.type=='Parent'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a></td>
-					<td ng-hide="res.type=='Parent'"><a href="{{res.path}}">{{res.size|fileSize}}</a></td>
-					<td ng-hide="res.type=='Parent'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}"><a href="{{res.path}}">{{res.mtime|fromNow}}</a></div></td>
+					<td ng-hide="res.type=='Parent'">{{res.size|fileSize}}</td>
+					<td ng-hide="res.type=='Parent'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}">{{res.mtime|fromNow}}</div></td>
 					<td ng-hide="res.type=='Parent'">
 						<div class="btn-group" dropdown is-open="status.isopen">
               <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
@@ -60,10 +60,10 @@
             <h3 class="modal-title">New directory</h3>
         </div>
         <div class="modal-body">
-          <form>
+          <form name="newDirName">
             <fieldset>
-              <label for="dirName">Name:</label>
-              <input type="text" ng-model="dirName" ng-pattern="/^[A-Za-z0-9_-]*$/" name="dirName" id="dirName" class="nginput" />
+              <input type="text" ng-model="dirName" ng-pattern="/^[A-Za-z0-9_-]*$/" name="dirName" id="dirName" class="nginput" placeholder="dir name.." autofocus />
+              <span ng-hide="newDirName.dirName.$valid">Only use: a-z A-Z 0-9 _ -</span>
             </fieldset>
           </form>
         </div>
@@ -78,15 +78,20 @@
   <script type="text/ng-template" id="newfile.html">
     <div>
       <div class="modal-header">
-          <h3 class="modal-title">New file</h3>
-      </div>
-      <div class="modal-body">
-      File
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">OK</button>
-        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>  
-      </div>
+            <h3 class="modal-title">New directory</h3>
+        </div>
+        <div class="modal-body">
+          <form name="newFileName">
+            <fieldset>
+              <input type="text" ng-model="fileName" name="fileName" id="fileName" class="nginput" placeholder="file name.." autofocus />
+              <!-- <span ng-hide="newFileName.fileName.$valid">Only use: a-z A-Z 0-9 _ - .</span> -->
+            </fieldset>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" ng-click="newFile(fileName)">OK</button>
+          <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        </div>
     </div>
   </script>
 
@@ -123,10 +128,10 @@
   <script type="text/ng-template" id="delete.html">
     <div>
       <div class="modal-header">
-            <h3 class="modal-title"><i class="fa fa-2x fa-trash-o fa-fw vmiddle"></i> Remove resource</h3>
+            <h3 class="modal-title"><i class="fa fa-2x fa-trash-o fa-fw vmiddle"></i> Delete resource</h3>
         </div>
         <div class="modal-body">
-          <p>Are you sure you want to remove</p>
+          <p>Are you sure you want to delete</p>
           <p><strong>{{delUri}}</strong></p>
           <br/>
           <p><small>Note: make sure directories are empty before removing them.</small></p>

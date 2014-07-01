@@ -1,3 +1,7 @@
+var isInteger = function(a) {
+    return ((typeof a !== 'number') || (a % 1 !== 0)) ? false : true;
+};
+
 stripSchema = function (uri) {
     return uri.slice(uri.indexOf('://')+3, uri.length);
 };

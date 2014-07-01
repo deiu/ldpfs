@@ -187,7 +187,6 @@ angular.module( 'App.list', [
   };
 
   $scope.newDir = function(dirName) {
-    console.log('Dirname: '+dirName);
     $http({
       method: 'MKCOL', 
       url: $scope.path+dirName,
@@ -200,13 +199,55 @@ angular.module( 'App.list', [
     }).
     error(function(data, status) {
       if (status == 401) {
-        notify('Error', 'You must authenticate.');
+        notify('Error', 'Authentication required to create new directory.');
       } else if (status == 403) {
-        notify('Error', 'Insufficient permissions.');
+        notify('Error', 'Insufficient permissions to create new directory.');
       } else {
         notify('Error'+status, data);
       }
     });
+  };
+
+  $scope.newFile = function(fileName) {
+    $http({
+      method: 'PUT', 
+      url: $scope.path+fileName,
+      data: '',
+      headers: {'Content-Type': 'text/turtle'},
+      withCredentials: true
+    }).
+    success(function(data, status, headers) {
+      if (status == 200 || status == 201) {
+        notify('Success', 'Resource created.');
+        // Add resource to the list
+        var res = headers('Location');
+        var f = {
+          uri: res,
+          path: '#/view/'+stripSchema(res),
+          type: 'File', // TODO: use the real type
+          name: basename(res),
+          mtime: moment().fromNow(),
+          size: '-'
+        };
+        // TODO Refresh the view
+        $scope.resources.push(f);
+        // Add
+
+      }
+    }).
+    error(function(data, status) {
+      if (status == 401) {
+        notify('Error', 'Authentication required to create new resource.');
+      } else if (status == 403) {
+        notify('Error', 'Insufficient permissions to create new resource.');
+      } else {
+        notify('Error'+status, data);
+      }
+    });
+  };
+
+  $scope.refreshResource = function(uri) {
+    // TODO
   };
 
   $scope.deleteResource = function(resourceUri) {
@@ -223,9 +264,11 @@ angular.module( 'App.list', [
     }).
     error(function(data, status) {
       if (status == 401) {
-        notify('Error', 'You must authenticate.');
+        notify('Error', 'Authentication required to delete resource.');
       } else if (status == 403) {
-        notify('Error', 'Insufficient permissions.');
+        notify('Error', 'Insufficient permissions to delete resource.');
+      } else if (status == 409) {
+        notify('Error', 'Conflict detected. In case of directory, check if not empty.');
       } else {
         notify('Error'+status, data);
       }
@@ -251,6 +294,15 @@ angular.module( 'App.list', [
     });
     modalInstance.result.then($scope.newDir);
   };
+  // New file creation dialog
+  $scope.openNewFile = function () {
+    var modalInstance = $modal.open({
+      templateUrl: 'newfile.html',
+      controller: ModalNewFileCtrl,
+      size: 'sm'
+    });
+    modalInstance.result.then($scope.newFile);
+  };
   // Remove resource dialog
   $scope.openDelete = function (uri) {
     console.log("Calling openDelete for "+uri);
@@ -266,19 +318,11 @@ angular.module( 'App.list', [
     });
     modalInstance.result.then($scope.deleteResource);
   };
-  // New file creation dialog
-  $scope.openNewFile = function () {
-    var modalInstance = $modal.open({
-      templateUrl: 'newfile.html',
-      controller: ModalInstanceCtrl,
-      size: 'sm'
-    });
-  };
   // New file upload dialog
   $scope.openNewUpload = function () {
     var modalInstance = $modal.open({
       templateUrl: 'uploadfiles.html',
-      controller: ModalInstanceCtrl,
+      controller: ModalUploadCtrl,
       size: 'sm'
     });
   };
@@ -286,10 +330,27 @@ angular.module( 'App.list', [
   $scope.listDir($scope.path);
  });
 
-// Modals
+// Modal Ctrls
 var ModalNewDirCtrl = function ($scope, $modalInstance) {
   $scope.newDir = function(dirName) {
     $modalInstance.close(dirName);
+  };
+
+  $scope.ok = function () {
+    $modalInstance.close();
+  };
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+};
+
+var ModalNewFileCtrl = function ($scope, $modalInstance) {
+  // TODO
+  // $scope.expr = "/^[A-Za-z0-9_-(\.)]*$/";
+
+  $scope.newFile = function(fileName) {
+    $modalInstance.close(fileName);
   };
 
   $scope.ok = function () {
