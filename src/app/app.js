@@ -26,6 +26,8 @@ angular.module( 'App', [
   $scope.appuri = window.location.hostname+window.location.pathname;
   $scope.userProfile = {};
   $scope.userProfile.picture = 'assets/generic_photo.png';
+  $scope.notifStatus = getNotifStatus();
+  $scope.notifEnabledTxt = ($scope.notifStatus=='granted')?'Notifications enabled.':'Notifications disabled.';
 
   $scope.login = function () {
     $location.path('/login');

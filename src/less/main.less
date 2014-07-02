@@ -79,6 +79,15 @@ h2 {
   }
 }
 
+.topbar {
+  position: fixed;
+  top: 0px;
+  height: 70px;
+  width: 100%;
+  background: #000;
+  z-index: 998;
+}
+
 /**
  * Main
  */
@@ -127,15 +136,28 @@ h2 {
  * Navbar
  */
 .icon-bars-button {
-  float: left;
-  position: absolute;
+  position: fixed;
   display: inline-block;
   vertical-align:middle;
   height: 40px;
   padding-top: 9px;
-  left: 160px;
+  left: 10px;
   top: 15px;
   background-color: #FF3C1F;
+}
+.icon-bars-button-left {
+  -moz-transition: left .3s;
+  -webkit-transition: left .3s;
+  -o-transition: left .3s;
+  transition: left .3s;
+  left: 10px;
+}
+.icon-bars-button-right {
+  -moz-transition: left .3s;
+  -webkit-transition: left .3s;
+  -o-transition: left .3s;
+  transition: left .3s;
+  left: 160px;
 }
 .icon-bar {
   margin-bottom:4px;
@@ -151,15 +173,14 @@ h2 {
   -o-transition: left .3s;
   transition: left .3s;
   width: 150px;
+  height: 100%;
   background-color: #34495e;
   position: absolute;
-  min-height: 700px;
   top: 0px;
   padding-top: 10px;
-  bottom: 0px;
   left: -150px;
   text-align: center;
-  z-index: 9999;
+  z-index: 999;
 }
 .sidebar .menu-item {
   width: 150px;
@@ -244,6 +265,16 @@ h2 {
   top: 0px;
 }
 
+.center {
+  text-align: center;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+
 .vmiddle {
   vertical-align: middle;
 }
@@ -282,6 +313,10 @@ h2 {
   word-wrap: break-word;
 }
 
+.col-md-12 {
+  padding-left: 10px;
+  padding-right: 10px;
+}
 /**
  * Now that all app-wide styles have been applied, we can load the styles for
  * all the submodules and components we are using.

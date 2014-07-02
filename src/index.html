@@ -18,15 +18,16 @@
     <script type="text/javascript" src="<%= file %>"></script><% }); %>
   </head>
   <body flow-prevent-drop>
+      <div class="topbar box-shadow"></div>
+
     <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu">
-      <button type="button" ng-click="showMenu=!showMenu" class="btn btn-primary icon-bars-button" alt="Toggle navigation">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
+      <button type="button" ng-click="showMenu=!showMenu" class="btn btn-primary icon-bars-button" ng-class="showMenu==true?'icon-bars-button-right':'icon-bars-button-left'" alt="Toggle navigation">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
       </button>
 
       <div ng-show="userProfile.webid" ng-click="showMenu=false">
-
         <div class="menu-item avatar-frame">
           <a href="{{userProfile.webid}}" target="_blank" ui-sref="profile">
             <img ng-src="{{userProfile.picture}}" class="profile-img" title="{{userProfile.name}}" alt="{{userProfile.name}}" />
@@ -55,10 +56,10 @@
           <i class="fa fa-ellipsis-h fa-2x light-grey"></i>
         </div>
 
-        <div class="menu-item">
+        <div class="menu-item" tooltip-placement="bottom" tooltip="{{notifEnabledTxt}}">
           <a href ng-click="authorizeNotifications()">
             <div>
-              <i class="fa fa-bullhorn fa-3x"></i>
+              <i class="fa fa-bullhorn fa-3x" ng-class="notifStatus=='granted'?'orange':''"></i>
               <p>Notifications</p>
             </div>
           </a>

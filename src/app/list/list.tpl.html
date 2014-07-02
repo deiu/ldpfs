@@ -5,7 +5,7 @@
       <tr>
         <td>
           <div class="btn-group" dropdown>
-            <button type="button" class="btn btn-success dropdown-toggle" ng-disabled="disabled"><i class="fa fa-2x fa-plus"></i></button>
+            <button type="button" class="btn btn-success dropdown-toggle" ng-disabled="disabled" tooltip-placement="bottom" tooltip="New..."><i class="fa fa-2x fa-plus"></i></button>
             <ul class="dropdown-menu" role="menu">
               <li><a href ng-click="openNewDir()"><i class="fa fa-2x fa-folder-open-o fa-fw vmiddle"></i> Directory</a></li>
               <li><a href ng-click="openNewFile()"><i class="fa fa-2x fa-file-o fa-fw vmiddle"></i> File</a></li>
@@ -14,7 +14,7 @@
           </div>
     		</td>
         <td>
-          <div id="crumbs">
+          <div id="crumbs" class="collapse navbar-collapse">
             <ul>
               <li ng-repeat="dir in dirPath">
                 <a href="{{dir.path}}"><i class="fa fa-folder-open-o"></i> {{dir.name}}</a>
@@ -30,18 +30,18 @@
 					<th class="filename">Name</th>
 					<th>Size</th>
 					<th>Modified</th>
-					<th>Actions</th>
+					<th class="right">Actions</th>
 				</thead>
 				<tr ng-repeat="res in resources">
 					<td colspan="{{res.type=='Parent'?4:1}}"><a href="{{res.path}}"><i class="fa" ng-class="res.type=='Directory'||res.type=='Parent'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a></td>
 					<td ng-hide="res.type=='Parent'">{{res.size|fileSize}}</td>
 					<td ng-hide="res.type=='Parent'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}">{{res.mtime|fromNow}}</div></td>
-					<td ng-hide="res.type=='Parent'">
+					<td ng-hide="res.type=='Parent'" class="right">
 						<div class="btn-group" dropdown is-open="status.isopen">
               <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
                 Action <span class="caret"></span>
               </button>
-					      <ul class="dropdown-menu dropdown-menu-right" role="menu">
+					      <ul class="dropdown-menu dropdown-menu-right left" role="menu">
 					        <li><a href="#" ng-show="res.type != 'Directory'"><i class="fa fa-2x fa-pencil-square-o fa-fw vmiddle"></i> View/Edit</a></li>
 					        <li><a href="#"><i class="fa fa-2x fa-unlock-alt fa-fw vmiddle"></i> Permissions</a></li>
 					        <li><a href ng-click="openDelete(res.uri)"><i class="fa fa-2x fa-trash-o fa-fw vmiddle"></i> Delete</a></li>
