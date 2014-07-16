@@ -17,7 +17,7 @@
           <div id="crumbs" class="collapse navbar-collapse">
             <ul>
               <li ng-repeat="dir in dirPath">
-                <a href="{{dir.path}}"><i class="fa fa-folder-open-o"></i> {{dir.name}}</a>
+                <a href="{{dir.uri}}"><i class="fa" ng-class="$first?'fa-home':'fa-folder-open-o'"></i> {{dir.name}}</a>
                 </li>
       			</ul>
     	   	</div>
@@ -32,11 +32,11 @@
 					<th>Modified</th>
 					<th class="right">Actions</th>
 				</thead>
-				<tr ng-repeat="res in resources">
-					<td colspan="{{res.type=='Parent'?4:1}}"><a href="{{res.path}}"><i class="fa" ng-class="res.type=='Directory'||res.type=='Parent'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a></td>
-					<td ng-hide="res.type=='Parent'">{{res.size|fileSize}}</td>
-					<td ng-hide="res.type=='Parent'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}">{{res.mtime|fromNow}}</div></td>
-					<td ng-hide="res.type=='Parent'" class="right">
+				<tr ng-repeat="res in resources|orderBy:['type','name']" class="view-slide-in">
+					<td colspan="{{res.type==='-'?4:1}}"><a href="{{res.path}}"><i class="fa" ng-class="res.type=='Directory'||res.type==='-'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a></td>
+					<td ng-hide="res.type==='-'">{{res.size|fileSize}}</td>
+					<td ng-hide="res.type==='-'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}">{{res.mtime|fromNow}}</div></td>
+					<td ng-hide="res.type==='-'" class="right">
 						<div class="btn-group" dropdown is-open="status.isopen">
               <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
                 Action <span class="caret"></span>

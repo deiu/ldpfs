@@ -5,8 +5,8 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- font awesome from BootstrapCDN -->
-    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <!-- font awesome -->
+    <!-- <link href="assets/css/font-awesome.css" rel="stylesheet"> -->
 
     <!-- compiled CSS --><% styles.forEach( function ( file ) { %>
     <link rel="stylesheet" type="text/css" href="<%= file %>" /><% }); %>
@@ -17,8 +17,10 @@
     <!-- compiled JavaScript --><% scripts.forEach( function ( file ) { %>
     <script type="text/javascript" src="<%= file %>"></script><% }); %>
   </head>
-  <body flow-prevent-drop>
-      <div class="topbar box-shadow"></div>
+  <body flow-prevent-drop ng-cloak>
+      <div class="topbar box-shadow">
+        <div class="pull-right white"><h1><i class="fa fa-rocket orange"></i> WARP</h1></div>
+      </div>
 
     <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu">
       <button type="button" ng-click="showMenu=!showMenu" class="btn btn-primary icon-bars-button" ng-class="showMenu==true?'icon-bars-button-right':'icon-bars-button-left'" alt="Toggle navigation">
@@ -92,7 +94,7 @@
       <div class="container">
         <div class="footer-inner">
           <p>
-            &copy; 2014 <a href="#">LDP File Manager</a>
+            &copy; 2014 Warp | <a href="https://github.com/linkeddata/warp"><i class="fa fa-github"></i> Source</a> | <a href="https://github.com/linkeddata/warp/issues"><i class="fa fa-bug"></i> Issues</a>
           </p>
         </div>
       </div>

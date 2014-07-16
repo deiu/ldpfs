@@ -63,6 +63,7 @@ module.exports = {
   vendor_files: {
     js: [
       'vendor/angular/angular.js',
+      'vendor/angular/angular-animate.js',
       'vendor/angular-bootstrap/ui-bootstrap-tpls.min.js',
       'vendor/angular-bootstrap/ui-bootstrap.min.js',
       'vendor/placeholders/angular-placeholders-0.0.1-SNAPSHOT.min.js',
@@ -77,6 +78,7 @@ module.exports = {
     ],
     css: [
       'vendor/ngProgress/ngProgress.less',
+      'vendor/font-awesome/font-awesome.less'
     ],
     assets: [
       'src/app/assets/background.png'

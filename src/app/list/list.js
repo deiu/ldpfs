@@ -16,6 +16,7 @@
 angular.module( 'App.list', [
   'ui.router',
   'ngProgress',
+  'ngAnimate',
   'ui.bootstrap',
   'ui.bootstrap.tpls',
   'flow'
@@ -27,13 +28,15 @@ angular.module( 'App.list', [
  */
 .filter('classicDate', function() {
   return function(date) {
-    return moment(date*1000).format('YYYY-MM-DD, h:mm:ss a');
+    date = (date<10000000000)?date*1000:date;
+    return moment(date).format('YYYY-MM-DD, h:mm:ss a');
   };
 })
 
 .filter('fromNow', function() {
   return function(date) {
-    return moment(date*1000).fromNow();
+    date = (date<10000000000)?date*1000:date;
+    return moment(date).fromNow();
   };
 })
 
@@ -145,7 +148,7 @@ angular.module( 'App.list', [
           d = {
             uri: dirs[i].subject.uri,
             path: dirname(document.location.href)+'/',
-            type: 'Parent',
+            type: '-',
             name: '../',
             mtime: g.any(dirs[i].subject, POSIX("mtime")).value,
             size: '-'
@@ -195,6 +198,18 @@ angular.module( 'App.list', [
     success(function(data, status) {
       if (status == 200 || status == 201) {
         notify('Success', 'Directory created.');
+        // add dir to local list
+        var now = new Date().getTime();
+        var d = {
+            uri: $scope.path+dirName,
+            path: document.location.href+basename($scope.path+dirName)+'/',
+            type: 'Directory',
+            name: dirName,
+            mtime: now,
+            size: '-'
+          };
+        console.log(d);
+        $scope.resources.push(d);
       }
     }).
     error(function(data, status) {
@@ -258,7 +273,7 @@ angular.module( 'App.list', [
     }).
     success(function(data, status) {
       if (status == 200 || status == 201) {
-        notify('Success', 'Resource was deleted.');
+        notify('Success', basename(resourceUri)+' was deleted.');
         $scope.removeResource(resourceUri);
       }
     }).
