@@ -42,12 +42,12 @@
           <a href ui-sref="home">
             <div>
               <i class="fa fa-th-list fa-3x"></i>
-              <p>Files</p>
+              <p>List files</p>
             </div>
           </a>
           <i class="fa fa-ellipsis-h fa-2x light-grey"></i>
         </div>
-
+        <!--
         <div class="menu-item">
           <a href ui-sref="settings">
             <div class="settings">
@@ -57,8 +57,8 @@
           </a>
           <i class="fa fa-ellipsis-h fa-2x light-grey"></i>
         </div>
-
-        <div class="menu-item" tooltip-placement="bottom" tooltip="{{notifEnabledTxt}}">
+        -->
+        <div class="menu-item" tooltip-placement="bottom" tooltip="{{notifEnabledTxt}}" ng-hide="checkNotif() === 'granted'">
           <a href ng-click="authorizeNotifications()">
             <div>
               <i class="fa fa-bullhorn fa-3x" ng-class="notifStatus=='granted'?'orange':''"></i>

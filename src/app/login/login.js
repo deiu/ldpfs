@@ -71,6 +71,7 @@ angular.module( 'App.login', [
       console.log("Getting user info for: "+webid);
     }
     // start progress bar
+    ngProgress.reset();
     ngProgress.start();
 
     var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
@@ -93,7 +94,7 @@ angular.module( 'App.login', [
           $scope.found = false;
           $scope.searchbtn = 'Search';
           // reset progress bar
-          ngProgress.reset();
+          ngProgress.complete();
           $scope.$apply();
         }
       }

@@ -23,6 +23,8 @@ angular.module( 'App', [
 
 .controller( 'MainCtrl', function MainCtrl ( $scope, $location, $timeout, ngProgress ) {
   // Some default values
+  ngProgress.height('5px');
+  ngProgress.color('#ff3c1f');
   $scope.appuri = window.location.hostname+window.location.pathname;
   $scope.userProfile = {};
   $scope.userProfile.picture = 'assets/generic_photo.png';
@@ -78,6 +80,10 @@ angular.module( 'App', [
       sessionStorage.removeItem($scope.appuri);
     }
   }
+
+  $scope.checkNotif = function() {
+    return getNotifStatus();
+  };
 
   $scope.authorizeNotifications = function() {
     authorizeNotifications();

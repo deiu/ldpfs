@@ -130,7 +130,7 @@ angular.module( 'App.list', [
     f.nowOrWhenFetched(url,undefined,function(ok, body) {
       if (!ok) {
         notify('Error', 'Could not fetch dir listing.');
-        ngProgress.reset();
+        ngProgress.complete();
         $scope.$apply();
 
         console.log(ok);
