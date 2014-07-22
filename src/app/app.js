@@ -15,7 +15,7 @@ angular.module( 'App', [
 ])
 
 .config( function AppConfig ( $stateProvider, $urlRouterProvider ) {
-  $urlRouterProvider.otherwise( '/login' );
+  $urlRouterProvider.otherwise( '/list/' );
 })
 
 .run( function run () {
@@ -61,7 +61,7 @@ angular.module( 'App', [
 
   $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams){
     if ( angular.isDefined( toState.data.pageTitle ) ) {
-      $scope.pageTitle = toState.data.pageTitle + ' | App Name' ;
+      $scope.pageTitle = 'Warp | ' + toState.data.pageTitle;
     }
   });
 

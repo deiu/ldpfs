@@ -1,6 +1,17 @@
 <div class="container" ng-click="hideMenu()">
-  <div class="clear-70"></div>
-  <div class="col-md-12">
+  <div class="col-md-12" ng-show="listLocation === false">
+    <div class="clear-70"></div>
+    <h1>Please provide a location for your data store:</h1>
+    <div class="prepare-list">
+      <form name="preList">
+        <div class="btn-group half-width">
+          <input type="text" ng-model="uriPath" name="uriPath" id="uriPath" class="nginput pull-left" placeholder="https://example.org/" autofocus />
+          <button class="btn btn-primary" ng-click="prepareList(uriPath)"><i class="fa fa-search fa-2x"></i></button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div ng-cloak class="col-md-12">
     <table class="create-new">
       <tr>
         <td>
@@ -16,8 +27,8 @@
         <td>
           <div id="crumbs" class="collapse navbar-collapse">
             <ul>
-              <li ng-repeat="dir in dirPath">
-                <a href="{{dir.uri}}"><i class="fa" ng-class="$first?'fa-home':'fa-folder-open-o'"></i> {{dir.name}}</a>
+              <li ng-repeat="crumb in breadCrumbs">
+                <a href="{{crumb.uri}}"><i class="fa" ng-class="$first?'fa-home':'fa-folder-open-o'"></i> {{crumb.name}}</a>
                 </li>
       			</ul>
     	   	</div>
@@ -32,7 +43,7 @@
 					<th>Modified</th>
 					<th class="right">Actions</th>
 				</thead>
-				<tr ng-repeat="res in resources|orderBy:['type','name']" class="view-slide-in">
+				<tr ng-repeat="res in resources|orderBy:['type','name']" class="repeat-animation">
 					<td colspan="{{res.type==='-'?4:1}}"><a href="{{res.path}}"><i class="fa" ng-class="res.type=='Directory'||res.type==='-'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a></td>
 					<td ng-hide="res.type==='-'">{{res.size|fileSize}}</td>
 					<td ng-hide="res.type==='-'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}">{{res.mtime|fromNow}}</div></td>

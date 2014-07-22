@@ -61,7 +61,7 @@ angular.module( 'App.list', [
         templateUrl: 'list/list.tpl.html'
       }
     },
-    data:{ pageTitle: 'Listing container' }
+    data:{ pageTitle: 'Listing resources' }
   });
 })
 
@@ -88,30 +88,53 @@ angular.module( 'App.list', [
   };
 
   // variables
-  var storage = $scope.$parent.userProfile.storagespace;
-  var schema = (storage !== undefined)?storage.slice(0, storage.indexOf('://')):$location.$$protocol;
+  $scope.schema = '';
   $scope.resources = [];
-  $scope.dirPath = [];
+  $scope.listLocation = true;
+  $scope.breadCrumbs = [];
 
-  // TODO: check for (saved) schema
-  $scope.path = schema+'://'+$stateParams.path;
-  console.log("Requested: "+$scope.path); // debug
+  // var storage = $scope.$parent.userProfile.storagespace;
+  // $scope.schema = (storage !== undefined)?storage.slice(0, storage.indexOf('://')):$location.$$protocol;
+  // $scope.path = $stateParams.path;
 
-  var elms = $stateParams.path.split("/");
-  var path = '';
-  for (i=0; i<elms.length; i++) {
-    if (elms[i].length > 0) {
-      path = (i===0)?elms[0]+'/':path+elms[i]+'/';
-      var dir = {
-        uri: '#/list/'+path,
-        name: elms[i]
-      };
-
-      $scope.dirPath.push(dir);
+  $scope.prepareList = function(url) {
+    if (url && url.length > 0) {
+      $scope.listLocation = true;
+      $location.path('/list/'+stripSchema(url));
+    } else {
+      $scope.listLocation = false;
+      notify('Warning', 'Please provide a URL');
     }
-  }
+  };
 
+  // TODO: rdflib fetch does not respond properly to 404
   $scope.listDir = function (url) {
+    console.log("Requested path: "+url); // debug
+    var elms = url.split("/");
+    var schema = '';
+    var path = '';
+    if (elms[0].substring(0, 4) == 'http') {
+      schema = elms[0];
+      elms.splice(0,1);
+    } else {
+      schema = 'https';
+    }
+    $scope.path = schema+'://';
+    console.log("So far: "+$scope.path);
+
+    for (i=0; i<elms.length; i++) {
+      if (elms[i].length > 0) {
+        path = (i===0)?elms[0]+'/':path+elms[i]+'/';
+        var dir = {
+          uri: '#/list/'+schema+'/'+path,
+          name: elms[i]
+        };
+
+        $scope.breadCrumbs.push(dir);
+      }
+    }
+    $scope.path += path;
+
     // start progress bar
     ngProgress.reset();
     ngProgress.start();
@@ -127,24 +150,26 @@ angular.module( 'App.list', [
     $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
     // fetch user data
-    f.nowOrWhenFetched(url,undefined,function(ok, body) {
+    f.nowOrWhenFetched($scope.path,undefined,function(ok, body) {
       if (!ok) {
         notify('Error', 'Could not fetch dir listing.');
         ngProgress.complete();
-        $scope.$apply();
+        $scope.listLocation = false;
 
         console.log(ok);
         console.log(body);
+      } else {
+        $scope.listLocation = true;
       }
+      $scope.$apply();
 
       var dirs = g.statementsMatching(undefined, RDF("type"), POSIX("Directory"));
       for ( var i in dirs ) {
         if ( dirs[i].subject.uri.split('://')[1].split('/').length <= 2 ) {
           continue;
         }
-
         var d = {};
-        if ( dirs[i].subject.uri == url ) {
+        if ( dirs[i].subject.uri == $scope.path ) {
           d = {
             uri: dirs[i].subject.uri,
             path: dirname(document.location.href)+'/',
@@ -176,10 +201,10 @@ angular.module( 'App.list', [
           size: g.any(files[i].subject, POSIX("size")).value
         };
         $scope.resources.push(f);
+        $scope.$apply();
       }
-
+      console.log($scope.resources);
       ngProgress.complete();
-      notify('Success', 'Displaying files!');
       $scope.$apply();
     });
   };
@@ -191,8 +216,14 @@ angular.module( 'App.list', [
 
   $scope.newDir = function(dirName) {
     $http({
-      method: 'MKCOL', 
-      url: $scope.path+dirName,
+      method: 'POST', 
+      url: $scope.path,
+      data: '',
+      headers: {
+        'Content-Type': 'text/turtle',
+        'Link': '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"',
+        'Slug': dirName
+      },
       withCredentials: true
     }).
     success(function(data, status) {
@@ -214,11 +245,11 @@ angular.module( 'App.list', [
     }).
     error(function(data, status) {
       if (status == 401) {
-        notify('Error', 'Authentication required to create new directory.');
+        notify('Forbidden', 'Authentication required to create new directory.');
       } else if (status == 403) {
-        notify('Error', 'Insufficient permissions to create new directory.');
+        notify('Forbidden', 'Insufficient permissions to create new directory.');
       } else {
-        notify('Error'+status, data);
+        notify('Failed'+status, data);
       }
     });
   };
@@ -228,7 +259,10 @@ angular.module( 'App.list', [
       method: 'PUT', 
       url: $scope.path+fileName,
       data: '',
-      headers: {'Content-Type': 'text/turtle'},
+      headers: {
+        'Content-Type': 'text/turtle',
+        'Link': '<http://www.w3.org/ns/ldp#Resource>; rel="type"'
+      },
       withCredentials: true
     }).
     success(function(data, status, headers) {
@@ -252,11 +286,11 @@ angular.module( 'App.list', [
     }).
     error(function(data, status) {
       if (status == 401) {
-        notify('Error', 'Authentication required to create new resource.');
+        notify('Forbidden', 'Authentication required to create new resource.');
       } else if (status == 403) {
-        notify('Error', 'Insufficient permissions to create new resource.');
+        notify('Forbidden', 'Insufficient permissions to create new resource.');
       } else {
-        notify('Error'+status, data);
+        notify('Failed'+status, data);
       }
     });
   };
@@ -279,13 +313,13 @@ angular.module( 'App.list', [
     }).
     error(function(data, status) {
       if (status == 401) {
-        notify('Error', 'Authentication required to delete resource.');
+        notify('Forbidden', 'Authentication required to delete resource.');
       } else if (status == 403) {
-        notify('Error', 'Insufficient permissions to delete resource.');
+        notify('Forbidden', 'Insufficient permissions to delete resource.');
       } else if (status == 409) {
-        notify('Error', 'Conflict detected. In case of directory, check if not empty.');
+        notify('Failed', 'Conflict detected. In case of directory, check if not empty.');
       } else {
-        notify('Error'+status, data);
+        notify('Failed'+status, data);
       }
     });
   };
@@ -342,7 +376,12 @@ angular.module( 'App.list', [
     });
   };
 
-  $scope.listDir($scope.path);
+  // Display list for current path
+  if ($stateParams.path.length > 0) {
+    $scope.listDir($stateParams.path);
+  } else {
+    $scope.listLocation = false;
+  }
  });
 
 // Modal Ctrls
