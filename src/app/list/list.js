@@ -94,6 +94,16 @@ angular.module( 'App.list', [
   $scope.emptyDir = false;
   $scope.breadCrumbs = [];
 
+  $scope.prepareList = function(url) {
+    if (url && url.length > 0) {
+      $scope.listLocation = true;
+      $location.path('/list/'+stripSchema(url));
+    } else {
+      $scope.listLocation = false;
+      notify('Warning', 'Please provide a URL');
+    }
+  };
+
   // TODO: rdflib fetch does not respond properly to 404
   $scope.listDir = function (url) {
     var elms = url.split("/");
