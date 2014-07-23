@@ -43,6 +43,9 @@
 					<th>Modified</th>
 					<th class="right">Actions</th>
 				</thead>
+        <tr ng-show="emptyDir">
+          <td colspan="4"><h2>No files found</h2></td>
+        </tr>
 				<tr ng-repeat="res in resources|orderBy:['type','name']" class="repeat-animation">
 					<td colspan="{{res.type==='-'?4:1}}"><a href="{{res.path}}"><i class="fa" ng-class="res.type=='Directory'||res.type==='-'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a></td>
 					<td ng-hide="res.type==='-'">{{res.size|fileSize}}</td>
@@ -89,7 +92,7 @@
   <script type="text/ng-template" id="newfile.html">
     <div>
       <div class="modal-header">
-            <h3 class="modal-title">New directory</h3>
+            <h3 class="modal-title">New file</h3>
         </div>
         <div class="modal-body">
           <form name="newFileName">
