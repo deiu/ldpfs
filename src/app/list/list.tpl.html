@@ -20,7 +20,7 @@
             <ul class="dropdown-menu" role="menu">
               <li><a href ng-click="openNewDir()"><i class="fa fa-2x fa-folder-open-o fa-fw vmiddle"></i> Directory</a></li>
               <li><a href ng-click="openNewFile()"><i class="fa fa-2x fa-file-o fa-fw vmiddle"></i> File</a></li>
-              <li><a href ng-click="openNewUpload()"><i class="fa fa-2x fa-cloud-upload fa-fw vmiddle"></i> Upload</a></li>
+              <li><a href ng-click="openNewUpload(path)"><i class="fa fa-2x fa-cloud-upload fa-fw vmiddle"></i> Upload</a></li>
             </ul>
           </div>
     		</td>
@@ -41,7 +41,7 @@
 					<th class="filename">Name</th>
 					<th>Size</th>
 					<th>Modified</th>
-					<th class="right">Actions</th>
+					<th class="right">Action</th>
 				</thead>
         <tr ng-show="emptyDir">
           <td colspan="4"><h2>No files found</h2></td>
@@ -50,10 +50,10 @@
 					<td colspan="{{res.type==='-'?4:1}}"><a href="{{res.path}}"><i class="fa" ng-class="res.type=='Directory'||res.type==='-'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a></td>
 					<td ng-hide="res.type==='-'">{{res.size|fileSize}}</td>
 					<td ng-hide="res.type==='-'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}">{{res.mtime|fromNow}}</div></td>
-					<td ng-hide="res.type==='-'" class="right">
+					<td ng-hide="res.type==='-'" class="center">
 						<div class="btn-group" dropdown is-open="status.isopen">
               <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
-                Action <span class="caret"></span>
+                <i class="fa fa-angle-double-down"></i>
               </button>
 					      <ul class="dropdown-menu dropdown-menu-right left" role="menu">
 					        <li><a href="#" ng-show="res.type != 'Directory'"><i class="fa fa-2x fa-pencil-square-o fa-fw vmiddle"></i> View/Edit</a></li>
@@ -76,7 +76,7 @@
         <div class="modal-body">
           <form name="newDirName">
             <fieldset>
-              <input type="text" ng-model="dirName" ng-pattern="/^[A-Za-z0-9_-]*$/" name="dirName" id="dirName" class="nginput" placeholder="dir name.." autofocus />
+              <input type="text" ng-model="dirName" name="dirName" id="dirName" class="nginput" placeholder="dir name.." autofocus />
               <span ng-hide="newDirName.dirName.$valid">Only use: a-z A-Z 0-9 _ -</span>
             </fieldset>
           </form>
@@ -111,29 +111,34 @@
 
   <!-- Upload file modal -->
   <script type="text/ng-template" id="uploadfiles.html">
-    <div flow-init="{target: $scope.path}">
+    <div>
       <div class="modal-header">
-          <h3 class="modal-title">Upload a file</h3>
+        <h3 class="modal-title">Upload files to <strong>{{container}}/</strong></h3>
       </div>
       <div class="modal-body">
-          <input type="file" class="btn btn-default" flow-btn/>
-          
-          <div class="dragdrop" flow-drop flow-drag-enter="style={border:'4px dotted #5cb85c'}" flow-drag-leave="style={}"
-         ng-style="style">
-              Drag And Drop your files here
-          </div>
-          <table class="upload-files">
-            <tr ng-repeat="file in $flow.files">
-                <td>{{$index+1}}</td>
-                <td>{{file.name}}</td>
-                <td>{{file.msg}}</td>
-            </tr>
-          </table>
+        <input type="file" ng-file-select="onFileSelect($files)" multiple>
+        <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="'dropzone-on'" class="dropzone" ng-show="dropSupported">
+          drop files here
         </div>
+        <div ng-file-drop-available="dropSupported=true" ng-show="!dropSupported">
+          HTML5 Drop File is not supported!
+        </div>
+        <table class="upload-files" ng-show="selectedFiles">
+          <tr>
+            <td><strong>File name</strong></td>
+            <td><strong>Status</strong></td>
+            <td><strong>Actions</strong></td>
+          </tr>
+          <tr ng-repeat="file in selectedFiles">
+            <td tooltip-placement="bottom" tooltip="{{file.size|fileSize}}">{{file.name|truncate:20}}</td>
+            <td>{{progress[file.name]}}%</td>
+            <td></td>
+          </tr>
+        </table>
       </div>
       <div class="modal-footer">
-        <!-- <span class="btn btn-primary" ng-click="$scope.upload()" ng-enabled="$index>1">Upload File</span> -->
-        <span class="btn btn-default" ng-click="cancel()">Cancel</span>
+        <a class="btn btn-default" ng-click="$upload.abort()">Cancel Upload</a>
+        <a class="btn btn-default" ng-click="cancel()">Close</a>
       </div>
     </div>
   </script>
