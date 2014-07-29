@@ -131,9 +131,9 @@
             <td></td>
           </tr>
           <tr ng-repeat="file in selectedFiles" ng-class="progress[file.name] == 100?'done':''">
-            <td tooltip-placement="bottom" tooltip="{{file.size|fileSize}}">{{file.name|truncate:20}}</td>
-            <td>{{progress[file.name]}}%</td>
-            <td>
+            <td>{{file.name|truncate:30}}</td>
+            <td><progressbar value="progress[file.name]"></progressbar></td>
+            <td class="pull-right">
               <a ng-hide="progress[file.name] == 100" class="btn btn-mini btn-default" ng-click="abort(file.name)"><i class="fa fa-2x fa-times"></i></a>
               <a class="btn btn-mini btn-default" ng-click="remove(file.name)"><i class="fa fa-2x fa-trash-o"></i></a>
             </td>
