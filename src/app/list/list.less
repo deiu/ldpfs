@@ -31,6 +31,10 @@
 	text-align: left;
 	background: #fff;
 	border-top: 1px dotted #ddd;
+
+	-webkit-transition: all 2s 1.5s ease-out;
+    -moz-transition: all 1.5s ease-out;
+    transition: all 1.5s ease-out;
 }
 .index thead > tr {
 	border-top: 1px solid #ddd;
@@ -68,6 +72,7 @@
 }
 
 .upload-files td {
+	min-width: 45px;
 	padding-right: 5px;
 }
 
@@ -143,9 +148,7 @@
   color:white;
 }
 /*  ng-repeat Animation  */
-.repeat-animation.ng-enter,
-.repeat-animation.ng-leave,
-.repeat-animation.ng-move {
+.repeat-animation.ng-enter {
   -webkit-transition: all linear 1s;
   -moz-transition: all linear 1s;
   -o-transition: all linear 1s;
@@ -154,6 +157,17 @@
   position:relative;
   left:5px;
 }
+
+.repeat-animation.ng-leave {
+	-webkit-transition: all linear 1s;
+  -moz-transition: all linear 1s;
+  -o-transition: all linear 1s;
+  transition: all linear 1s;
+    
+  position:relative;
+  left:5px;
+}
+
 .repeat-animation.ng-enter {
   opacity: 0;
 }
@@ -168,35 +182,22 @@
   display: none;
   opacity: 0;
 }
-.repeat-animation.ng-move {
-  left:2px;
-  opacity: 0.5;
-}
-.repeat-animation.ng-move.ng-move-active {
-  left:0;
-  opacity: 1;
+
+.repeat-enter-setup, .repeat-leave-setup {
+  -webkit-transition:all linear 0.5s;
+  -moz-transition:all linear 0.5s;
+  -ms-transition:all linear 0.5s;
+  -o-transition:all linear 0.5s;
+  transition:all linear 0.5s;
 }
 
-/*  ng-hide Animation  */
-.hide-fade.ng-hide-add, .hide-fade.ng-hide-remove {
-  -webkit-transition:all linear 1s;
-  -moz-transition:all linear 1s;
-  -o-transition:all linear 1s;
-  transition:all linear 1s;
-  display:block!important;
-}
+.repeat-enter-setup { line-height:0; opacity:0; }
+.repeat-enter-setup.repeat-enter-start { line-height:20px; opacity:1; }
 
-.hide-fade.ng-hide-add.ng-hide-add-active,
-.hide-fade.ng-hide-remove {
-	display: none;
-  opacity:0;
-}
+.repeat-leave-setup { opacity:1; line-height:20px; }
+.repeat-leave-setup.repeat-leave-start { opacity:0; line-height:0; }
 
-.hide-fade.ng-hide-add,
-.hide-fade.ng-hide-remove.ng-hide-remove-active {
-	display: none;
-  opacity:1;
-}
+
 #crumbs {
 	position: relative;
 	text-align: left;
