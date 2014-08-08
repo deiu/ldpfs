@@ -76,7 +76,7 @@
         <div class="modal-body">
           <form name="newDirName">
             <fieldset>
-              <input type="text" ng-model="dirName" name="dirName" id="dirName" class="nginput" placeholder="dir name.." ng-focus="isFocused" />
+              <input type="text" ng-model="dirName" name="dirName" id="dirName" class="nginput" placeholder="dir name.." ng-focus="isFocused" ng-keypress="($event.which === 13)?newDir(dirName):0" />
               <span ng-hide="newDirName.dirName.$valid">Only use: a-z A-Z 0-9 _ -</span>
             </fieldset>
           </form>
@@ -97,7 +97,7 @@
         <div class="modal-body">
           <form name="newFileName">
             <fieldset>
-              <input type="text" ng-model="fileName" name="fileName" id="fileName" class="nginput" placeholder="file name.." ng-focus="isFocused" />
+              <input type="text" ng-model="fileName" name="fileName" id="fileName" class="nginput" placeholder="file name.." ng-focus="isFocused" ng-keypress="($event.which === 13)?newFile(fileName):0" />
               <!-- <span ng-hide="newFileName.fileName.$valid">Only use: a-z A-Z 0-9 _ - .</span> -->
             </fieldset>
           </form>
