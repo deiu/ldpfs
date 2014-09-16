@@ -139,7 +139,7 @@ angular.module( 'App.list', [
         path = (i===0)?elms[0]+'/':path+elms[i]+'/';
         var dir = {
           uri: '#/list/'+schema+'/'+path,
-          name: elms[i]
+          name: decodeURIComponent(elms[i])
         };
 
         $scope.breadCrumbs.push(dir);
@@ -148,7 +148,7 @@ angular.module( 'App.list', [
     $scope.path += path;
 
     // start progress bar
-    ngProgress.reset();
+    ngProgress.complete();
     ngProgress.start();
 
     var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
@@ -164,7 +164,7 @@ angular.module( 'App.list', [
     // fetch user data
     f.nowOrWhenFetched($scope.path,undefined,function(ok, body) {
       if (!ok) {
-        notify('Error', 'Could not fetch dir listing.');
+        notify('Error', 'Could not fetch dir listing. Is the server available?');
         ngProgress.complete();
         $scope.listLocation = false;
 
@@ -204,7 +204,7 @@ angular.module( 'App.list', [
         $scope.resources.push(d);
       }
       // either POSIX:File or RDFS:Resource
-      // TODO: remove duplicates using http://lodash.com/docs#union
+      // TODO: remove duplicates using something like http://lodash.com/docs#union
       var files = g.statementsMatching(undefined, RDF("type"), POSIX("File"));
       files = (files.length > 0)?files.concat(g.statementsMatching(undefined, RDF("type"), RDFS("Resource"))):g.statementsMatching(undefined, RDF("type"), RDFS("Resource"));
       for (i in files) {
@@ -256,11 +256,11 @@ angular.module( 'App.list', [
     }).
     error(function(data, status) {
       if (status == 401) {
-        notify('Forbidden', 'Authentication required to create new directory.', 5000);
+        notify('Forbidden', 'Authentication required to create new directory.');
       } else if (status == 403) {
-        notify('Forbidden', 'Insufficient permissions to create new directory.', 5000);
+        notify('Forbidden', 'You are not allowed to create new directory.');
       } else {
-        notify('Failed'+status, data, 5000);
+        notify('Failed '+status, data, 5000);
       }
     });
   };
@@ -280,20 +280,20 @@ angular.module( 'App.list', [
     }).
     success(function(data, status, headers) {
       if (status == 200 || status == 201) {
-        notify('Success', 'Resource created.');
         // Add resource to the list
         var res = headers('Location');
         addResource($scope.resources, res, 'File');
         $scope.emptyDir = false;
+        notify('Success', 'Resource created.');
       }
     }).
     error(function(data, status) {
       if (status == 401) {
-        notify('Forbidden', 'Authentication required to create new resource.', 5000);
+        notify('Forbidden', 'Authentication required to create new resource.');
       } else if (status == 403) {
-        notify('Forbidden', 'Insufficient permissions to create new resource.', 5000);
+        notify('Forbidden', 'You are not allowed to create new resource.');
       } else {
-        notify('Failed'+status, data, 5000);
+        notify('Failed '+status, data);
       }
     });
   };
@@ -308,21 +308,63 @@ angular.module( 'App.list', [
       url: resourceUri,
       withCredentials: true
     }).
-    success(function(data, status) {
-      if (status == 200 || status == 201) {
-        //TODO: remove the acl and meta files.
-        $scope.removeResource(resourceUri);
+    success(function(data, status, headers) {
+      if (status == 200) {
+          $scope.removeResource(resourceUri);
+//        // remove resource from the view
+//        $scope.removeResource(resourceUri);
+//        //TODO: remove the acl and meta files.
+//        var lh = parseLinkHeader(headers('Link'));
+//        console.log(lh);
+//        if (lh['acl'] && lh['acl']['href'].length > 0) {
+//          $http({
+//            method: 'DELETE',
+//            url: lh['acl']['href'],
+//            withCredentials: true
+//          }).
+//          success(function (data, status) {
+//            $scope.removeResource(lh['acl']['href']);
+//          }).
+//          error(function(data, status) {
+//            if (status == 401) {
+//              notify('Forbidden', 'Authentication required to delete the resource.');
+//            } else if (status == 403) {
+//              notify('Forbidden', 'You are not allowed to delete the resource.');
+//            } else {
+//              console.log('Failed to delete '+lh['acl']['href']+" Server responded with HTTP "+status);
+//            }
+//          });
+//        }
+//        if (lh['meta'] && lh['meta']['href'].length > 0) {
+//          $http({
+//            method: 'DELETE',
+//            url: lh['meta']['href'],
+//            withCredentials: true
+//          }).
+//          success(function (data, status) {
+//            $scope.removeResource(lh['meta']['href']);
+//          }).
+//          error(function(data, status) {
+//            if (status == 401) {
+//              notify('Forbidden', 'Authentication required to delete the resource.');
+//            } else if (status == 403) {
+//              notify('Forbidden', 'You are not allowed to delete the resource.');
+//            } else {
+//              console.log('Failed to delete '+lh['meta']['href']+" Server responded with HTTP "+status);
+//            }
+//          });
+//        }
       }
     }).
     error(function(data, status) {
       if (status == 401) {
-        notify('Forbidden', 'Authentication required to delete resource.', 5000);
+        notify('Forbidden', 'Authentication required to delete resource.');
       } else if (status == 403) {
-        notify('Forbidden', 'Insufficient permissions to delete resource.', 5000);
+        notify('Forbidden', 'You are not allowed to delete resource.');
       } else if (status == 409) {
-        notify('Failed', 'Conflict detected. In case of directory, check if not empty.', 5000);
+        notify('Failed', 'Conflict detected. In case of directory, check if not empty.');
       } else {
-        notify('Failed'+status, data, 5000);
+        notify('Failed '+status, data);
       }
     });
   };

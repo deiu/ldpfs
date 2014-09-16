@@ -27,7 +27,7 @@
         <td>
           <div id="crumbs" class="collapse navbar-collapse">
             <ul>
-              <li ng-repeat="crumb in breadCrumbs">
+              <li ng-repeat="crumb in breadCrumbs track by $index">
                 <a href="{{crumb.uri}}"><i class="fa" ng-class="$first?'fa-home':'fa-folder-open-o'"></i> {{crumb.name}}</a>
                 </li>
       			</ul>
@@ -46,8 +46,8 @@
         <tr ng-show="emptyDir">
           <td colspan="4"><h2>No files found</h2></td>
         </tr>
-				<tr ng-repeat="res in resources|orderBy:['type','name']">
-					<td colspan="{{res.type==='-'?4:1}}"><a href="{{res.path}}" target="{{res.type=='File'?'_blank':''}}"><i class="fa" ng-class="res.type=='Directory'||res.type==='-'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a></td>
+				<tr ng-repeat="res in resources|orderBy:['type','name'] track by $index">
+					<td colspan="{{res.type==='-'?4:1}}"><a href="{{res.path}}" target="{{res.type=='File'?'_blank':''}}"><i class="fa fa-fw vmiddle" ng-class="res.type=='Directory'||res.type==='-'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a></td>
 					<td ng-hide="res.type==='-'">{{res.size|fileSize}}</td>
 					<td ng-hide="res.type==='-'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}">{{res.mtime|fromNow}}</div></td>
 					<td ng-hide="res.type==='-'" class="center">
@@ -130,7 +130,7 @@
             <td><strong>Status</strong></td>
             <td></td>
           </tr>
-          <tr ng-repeat="file in selectedFiles" ng-class="progress[file.name] == 100?'done':''">
+          <tr ng-repeat="file in selectedFiles track by $index" ng-class="progress[file.name] == 100?'done':''">
             <td>{{file.name|truncate:25}}</td>
             <td><progressbar value="progress[file.name]"></progressbar></td>
             <td class="pull-right">
