@@ -183,6 +183,7 @@ angular.module( 'App.list', [
         var d = {};
         if ( dirs[i].subject.uri == $scope.path ) {
           d = {
+            id: $scope.resources.length+1,
             uri: dirs[i].subject.uri,
             path: dirname(document.location.href)+'/',
             type: '-',
@@ -193,6 +194,7 @@ angular.module( 'App.list', [
         } else {
           var base = (document.location.href.charAt(document.location.href.length - 1) === '/')?document.location.href:document.location.href+'/';
           d = {
+            id: $scope.resources.length+1,
             uri: dirs[i].subject.uri,
             path: base+encodeURIComponent(basename(dirs[i].subject.uri))+'/',
             type: 'Directory',
@@ -209,6 +211,7 @@ angular.module( 'App.list', [
       files = (files.length > 0)?files.concat(g.statementsMatching(undefined, RDF("type"), RDFS("Resource"))):g.statementsMatching(undefined, RDF("type"), RDFS("Resource"));
       for (i in files) {
         var f = {
+          id: $scope.resources.length+1,
           uri: files[i].subject.uri,
           path: files[i].subject.uri,
           type: 'File', // TODO: use the real type
@@ -223,6 +226,7 @@ angular.module( 'App.list', [
         $scope.emptyDir = true;
       }
       ngProgress.complete();
+
       $scope.$apply();
     });
   };
@@ -281,8 +285,7 @@ angular.module( 'App.list', [
     success(function(data, status, headers) {
       if (status == 200 || status == 201) {
         // Add resource to the list
-        var res = headers('Location');
-        addResource($scope.resources, res, 'File');
+        addResource($scope.resources, $scope.path+encodeURIComponent(fileName), 'File');
         $scope.emptyDir = false;
         notify('Success', 'Resource created.');
       }
@@ -431,6 +434,20 @@ angular.module( 'App.list', [
       }
     });
   };
+  // ACL dialog
+  $scope.openACLEditor = function (uri) {
+    console.log("Opening ACL editor");
+    var modalInstance = $modal.open({
+      templateUrl: 'acleditor.html',
+      controller: ModalACLEditor,
+      size: 'sm',
+      resolve: { 
+        uri: function () {
+          return uri;
+        }
+      }
+    });
+  };
 
   // Display list for current path
   if ($stateParams.path.length > 0) {
@@ -443,11 +460,13 @@ angular.module( 'App.list', [
 
 var addResource = function (resources, uri, type, size) {
   // Add resource to the list
+  console.log("Resource URI: "+uri);
   var base = (document.location.href.charAt(document.location.href.length - 1) === '/')?document.location.href:document.location.href+'/';
   var path = (type === 'File')?dirname(uri)+'/'+encodeURIComponent(basename(uri)):base+basename(uri)+'/';
   var now = new Date().getTime();
   size = (size)?size:'-';
   var f = {
+    id: resources.length+1,
     uri: uri,
     path: path,
     type: type, // TODO: use the real type
@@ -591,6 +610,88 @@ var ModalUploadCtrl = function ($scope, $modalInstance, $upload, url, resources)
     }
   };
 
+  $scope.ok = function () {
+    $modalInstance.close();
+  };
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+};
+
+var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
+  $scope.uri = uri;
+  $scope.aclURI = '';
+  $scope.acls = {};
+  $scope.acls.owners = {};
+  $scope.acls.groups = {};
+  $scope.acls.others = {};
+  
+  // Find ACL uri
+  $http({
+    method: 'HEAD',
+    url: uri,
+    withCredentials: true
+  }).
+  success(function(data, status, headers) {
+    // add dir to local list
+    var lh = parseLinkHeader(headers('Link'));
+    $scope.aclURI = (lh['acl'] && lh['acl']['href'].length > 0)?lh['acl']['href']:'';
+  
+    // Load ACL triples
+    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+    var RDFS = $rdf.Namespace("http://www.w3.org/2000/01/rdf-schema#");
+    var WAC = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
+    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+
+    var g = $rdf.graph();
+    var f = $rdf.fetcher(g, TIMEOUT);
+    // add CORS proxy
+    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+
+    // fetch user data
+    f.nowOrWhenFetched($scope.aclURI,undefined,function(ok, body) {
+      if (!ok) {
+        notify('Error', 'Could not fetch ACL file. Is the server available?');
+        $scope.listLocation = false;
+      }
+
+      var policies = g.statementsMatching(undefined, RDF("type"), WAC("Authorization"));
+      if (policies.length > 0) {
+        var owners = g.statementsMatching(undefined, WAC("owner"), undefined);
+        var users  = g.statementsMatching(undefined, WAC("agent"), undefined);
+        var groups = g.statementsMatching(undefined, WAC("agentClass"), undefined);
+        var others = [];
+        if (groups.length > 0) {
+          for (var i=0; i<groups.length;i++) {
+            console.log("Group object");
+            console.log(groups[i].object);
+            console.log("Agent object");
+            console.log(FOAF("Agent"));
+            if (groups[i].object.uri === FOAF("Agent").uri) {
+              others.push(groups[i]);
+              groups.splice(i,1);
+            }
+          }
+        }
+        
+        console.log(owners);
+        console.log(users);
+        console.log(groups);
+        console.log(others);
+      }
+    });
+  }).
+  error(function(data, status) {
+    if (status == 401) {
+      notify('Forbidden', 'Authentication required to change permissions for '+dirname(uri));
+    } else if (status == 403) {
+      notify('Forbidden', 'You are not allowed to change permissions for '+dirname(uri));
+    } else {
+      notify('Failed - HTTP '+status, data, 5000);
+    }
+  });
+  
   $scope.ok = function () {
     $modalInstance.close();
   };

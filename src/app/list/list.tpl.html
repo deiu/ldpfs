@@ -27,7 +27,7 @@
         <td>
           <div id="crumbs" class="collapse navbar-collapse">
             <ul>
-              <li ng-repeat="crumb in breadCrumbs track by $index">
+              <li ng-repeat="crumb in breadCrumbs">
                 <a href="{{crumb.uri}}"><i class="fa" ng-class="$first?'fa-home':'fa-folder-open-o'"></i> {{crumb.name}}</a>
                 </li>
       			</ul>
@@ -41,23 +41,23 @@
 					<th class="filename">Name</th>
 					<th>Size</th>
 					<th>Modified</th>
-					<th class="right">Action</th>
+					<th class="right">More</th>
 				</thead>
         <tr ng-show="emptyDir">
           <td colspan="4"><h2>No files found</h2></td>
         </tr>
-				<tr ng-repeat="res in resources|orderBy:['type','name'] track by $index">
+				<tr ng-repeat="res in resources|orderBy:['type','name'] track by res.id">
 					<td colspan="{{res.type==='-'?4:1}}"><a href="{{res.path}}" target="{{res.type=='File'?'_blank':''}}"><i class="fa fa-fw vmiddle" ng-class="res.type=='Directory'||res.type==='-'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a></td>
 					<td ng-hide="res.type==='-'">{{res.size|fileSize}}</td>
 					<td ng-hide="res.type==='-'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}">{{res.mtime|fromNow}}</div></td>
-					<td ng-hide="res.type==='-'" class="center">
+					<td ng-hide="res.type==='-'" class="right">
 						<div class="btn-group" dropdown is-open="status.isopen">
               <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
                 <i class="fa fa-angle-double-down"></i>
               </button>
 					      <ul class="dropdown-menu dropdown-menu-right left" role="menu">
 					        <li><a href="#" ng-show="res.type != 'Directory'"><i class="fa fa-2x fa-pencil-square-o fa-fw vmiddle"></i> View/Edit</a></li>
-					        <li><a href="#"><i class="fa fa-2x fa-unlock-alt fa-fw vmiddle"></i> Permissions</a></li>
+					        <li><a href ng-click="openACLEditor(res.uri)"><i class="fa fa-2x fa-unlock-alt fa-fw vmiddle"></i> Permissions</a></li>
 					        <li><a href ng-click="openDelete(res.uri)"><i class="fa fa-2x fa-trash-o fa-fw vmiddle"></i> Delete</a></li>
 					      </ul>
 					    </div>
@@ -160,6 +160,26 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" ng-click="deleteResource(resource)">Yes</button>
+          <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        </div>
+    </div>
+  </script>
+  
+  <!-- ACL editor modal -->
+  <script type="text/ng-template" id="acleditor.html">
+    <div>
+      <div class="modal-header">
+            <h3 class="modal-title"><i class="fa fa-2x fa-unlock-alt fa-fw vmiddle"></i> Permissions for
+              <small>{{dirname(uri)}}</small>
+            </h3>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete:</p>
+          <p><strong>{{resource}}</strong></p>
+          <small>Note: make sure directories are empty before removing them.</small>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" ng-click="setAcl(uri)">Yes</button>
           <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
         </div>
     </div>
