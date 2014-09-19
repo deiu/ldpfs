@@ -169,14 +169,78 @@
   <script type="text/ng-template" id="acleditor.html">
     <div>
       <div class="modal-header">
-            <h3 class="modal-title"><i class="fa fa-2x fa-unlock-alt fa-fw vmiddle"></i> Permissions for
-              <small>{{dirname(uri)}}</small>
-            </h3>
-        </div>
+        <h3 class="modal-title">Permissions for <strong>{{resource}}</strong></h3>
+        <img ng-src="assets/loading.gif" ng-show="loading">  
+      </div>
         <div class="modal-body">
-          <p>Are you sure you want to delete:</p>
-          <p><strong>{{resource}}</strong></p>
-          <small>Note: make sure directories are empty before removing them.</small>
+          <table class="full-width">
+            <tr>
+              <td class="permission-icons">
+                <strong>Owners</strong>
+                <br/>
+                <i class="fa fa-2x fa-lock vmiddle"></i>
+              </td>
+              <td>
+                <p ng-repeat="owner in owners">
+                  {{trunc(owner.profile.name, 30)}}
+                  <label ng-repeat="(key, val) in owner.modes|orderBy:$index" class="pull-right">
+                    <input type="checkbox" checklist-model="owner.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
+                  </label>
+                </p>
+                <p><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></p>
+              </td>
+            </tr>
+            <tr><td colspan="2"><hr/></td></tr>
+            <tr>
+              <td class="permission-icons">
+                <strong>Users</strong>
+                <br/>
+                <i class="fa fa-2x fa-user vmiddle"></i>
+              </td>
+              <td>
+                <p ng-repeat="user in users">
+                  {{trunc(user.profile.name, 30)}}
+                  <label ng-repeat="(key, val) in user.modes|orderBy:$index" class="pull-right">
+                    <input type="checkbox" checklist-model="owner.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
+                  </label>
+                </p>
+                <p><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></p>
+              </td>
+            </tr>
+            <tr><td colspan="2"><hr/></td></tr>
+            <tr>
+              <td class="permission-icons">
+                <strong>Groups</strong>
+                <br/>
+                <i class="fa fa-2x fa-users vmiddle"></i>
+              </td>
+              <td>
+                <p ng-repeat="group in groups">
+                  {{trunc(group.profile.name, 30)}}
+                  <label ng-repeat="(key, val) in group.modes|orderBy:$index" class="pull-right">
+                    <input type="checkbox" checklist-model="owner.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
+                  </label>
+                </p>
+                <p><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></p>
+              </td>
+            </tr>
+            <tr><td colspan="2"><hr/></td></tr>
+            <tr>
+              <td class="permission-icons">
+                <strong>Others</strong>
+                <br/>
+                <i class="fa fa-2x fa-unlock-alt vmiddle"></i>
+              </td>
+              <td>
+                <p ng-repeat="other in others">
+                  Everyone
+                  <label ng-repeat="(key, val) in other.modes|orderBy:$index" class="pull-right">
+                    <input type="checkbox" checklist-model="owner.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
+                  </label>
+                </p>
+              </td>
+            </tr>
+          </table>
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" ng-click="setAcl(uri)">Yes</button>

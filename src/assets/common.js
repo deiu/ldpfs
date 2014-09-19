@@ -1,3 +1,45 @@
+var getProfile = function(uri, profile) {
+  var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+  var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+  var g = $rdf.graph();
+  var f = $rdf.fetcher(g, TIMEOUT);
+  // add CORS proxy
+  $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+
+  var docURI = uri.slice(0, uri.indexOf('#'));
+  var webidRes = $rdf.sym(uri);
+
+  // fetch user data
+  f.nowOrWhenFetched(docURI,undefined,function(ok, body) {
+    if (!ok) {
+      profile.uri = uri;
+      profile.name = uri;
+      console.log('Warning - profile not found.');
+    } else {
+      // get some basic info
+      var name = g.any(webidRes, FOAF('name'));
+      // Clean up name
+      name = (name)?name.value:'';
+      var pic = g.any(webidRes, FOAF('img'));
+      var depic = g.any(webidRes, FOAF('depiction'));
+      // set avatar picture
+      if (pic) {
+        pic = pic.value;
+      } else {
+        if (depic) {
+          pic = depic.value;
+        } else {
+          pic = 'assets/generic_photo.png';
+        }
+      }
+
+      profile.uri = uri;
+      profile.name = name;
+      profile.picture = pic;
+    }
+  });
+};
+
 var isInteger = function(a) {
     return ((typeof a !== 'number') || (a % 1 !== 0)) ? false : true;
 };

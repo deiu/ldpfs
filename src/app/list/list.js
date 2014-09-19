@@ -411,7 +411,7 @@ angular.module( 'App.list', [
       controller: ModalDeleteCtrl,
       size: 'sm',
       resolve: { 
-        delUri: function () {
+        uri: function () {
           return uri;
         }
       }
@@ -440,7 +440,6 @@ angular.module( 'App.list', [
     var modalInstance = $modal.open({
       templateUrl: 'acleditor.html',
       controller: ModalACLEditor,
-      size: 'sm',
       resolve: { 
         uri: function () {
           return uri;
@@ -527,9 +526,9 @@ var ModalNewFileCtrl = function ($scope, $modalInstance) {
   };
 };
 
-var ModalDeleteCtrl = function ($scope, $modalInstance, delUri) {
-  $scope.delUri = delUri;
-  $scope.resource = decodeURIComponent(basename(delUri));
+var ModalDeleteCtrl = function ($scope, $modalInstance, uri) {
+  $scope.delUri = uri;
+  $scope.resource = decodeURIComponent(basename(uri));
   $scope.deleteResource = function() {
     $modalInstance.close($scope.delUri);
   };
@@ -621,11 +620,14 @@ var ModalUploadCtrl = function ($scope, $modalInstance, $upload, url, resources)
 
 var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
   $scope.uri = uri;
+  $scope.resource = decodeURIComponent(basename(uri));
   $scope.aclURI = '';
-  $scope.acls = {};
-  $scope.acls.owners = {};
-  $scope.acls.groups = {};
-  $scope.acls.others = {};
+  $scope.owners = [];
+  $scope.users = [];
+  $scope.groups = [];
+  $scope.others = [];
+  
+  $scope.loading = true;  
   
   // Find ACL uri
   $http({
@@ -652,33 +654,87 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
     // fetch user data
     f.nowOrWhenFetched($scope.aclURI,undefined,function(ok, body) {
       if (!ok) {
-        notify('Error', 'Could not fetch ACL file. Is the server available?');
+        console.log('Error -- could not fetch ACL file. Is the server available?');
         $scope.listLocation = false;
       }
 
+      $scope.findModes = function(modes) {
+        var ret = {"Read": false, "Write": false, "Append": false};
+        if (modes !== undefined && modes.length > 0) {
+          for (var i in modes) {
+            if (modes[i] !== undefined) {
+              mode = modes[i].object.uri.slice(modes[i].object.uri.indexOf('#')+1, modes[i].object.uri.length);
+              if (mode == "Read") { ret.Read = true; }
+              else if (mode == "Write") { ret.Write = true; }
+              else if (mode == "Append") { ret.Append = true; }
+            }
+          }
+        } 
+        return ret;
+      };
+      
+      $scope.trunc = function (str, size) {
+        return (str.length > size+3)?str.slice(0, size)+'...':str;
+      };
+      
       var policies = g.statementsMatching(undefined, RDF("type"), WAC("Authorization"));
       if (policies.length > 0) {
+        var i = 0;
+        
         var owners = g.statementsMatching(undefined, WAC("owner"), undefined);
-        var users  = g.statementsMatching(undefined, WAC("agent"), undefined);
-        var groups = g.statementsMatching(undefined, WAC("agentClass"), undefined);
-        var others = [];
-        if (groups.length > 0) {
-          for (var i=0; i<groups.length;i++) {
-            console.log("Group object");
-            console.log(groups[i].object);
-            console.log("Agent object");
-            console.log(FOAF("Agent"));
-            if (groups[i].object.uri === FOAF("Agent").uri) {
-              others.push(groups[i]);
-              groups.splice(i,1);
-            }
+        console.log("Found owners: "+owners.length);
+        if (owners !== undefined && owners.length > 0) {
+          console.log("Got owners");
+          for (i=0; i<owners.length;i++) {
+            console.log(owners[i]);
+            var owner = {};
+            owner.policy = owners[i].subject.uri;
+            owner.profile = {};
+            getProfile(owners[i].object.uri, owner.profile);
+            owner.modes = [];
+            console.log(owner);
+            owner.modes = $scope.findModes(g.statementsMatching(owners[i].subject, WAC("mode"), undefined));
+            
+            console.log(owner);
+            $scope.owners.push(owner);
           }
         }
         
-        console.log(owners);
-        console.log(users);
-        console.log(groups);
-        console.log(others);
+        var users  = g.statementsMatching(undefined, WAC("agent"), undefined);
+        console.log("Found users: "+users.length);
+        if (users !== undefined && users.length > 0) {
+          for (i=0; i<users.length;i++) {
+            var user = {};
+            user.policy = users[i].subject.uri;
+            user.profile = {};
+            getProfile(users[i].object.uri, user.profile);
+            user.modes = [];
+            user.modes = $scope.findModes(g.statementsMatching(users[i].subject, WAC("mode"), undefined));
+            
+            $scope.users.push(user);
+          }
+        }
+        
+        var groups = g.statementsMatching(undefined, WAC("agentClass"), undefined);
+        console.log("Found groups: "+groups.length);
+        if (groups !== undefined && groups.length > 0) {
+          for (i=0; i<groups.length;i++) {                         
+            // add more info about the group
+            var group = {};
+            group.policy = groups[i].subject.uri;
+            group.profile = {};
+            getProfile(groups[i].object.uri, group.profile);
+            group.modes = [];
+            group.modes = $scope.findModes(g.statementsMatching(groups[i].subject, WAC("mode"), undefined));
+            
+            if (groups[i].object.uri === FOAF("Agent").uri) {
+              $scope.others.push(group);
+            } else {
+              $scope.groups.push(group);
+            }
+          }
+        }
+        $scope.loading = false;
       }
     });
   }).
