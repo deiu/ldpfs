@@ -1,4 +1,4 @@
-var getProfile = function(uri, profile) {
+var getProfile = function(scope, uri, profile) {
   var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
   var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
   var g = $rdf.graph();
@@ -8,6 +8,8 @@ var getProfile = function(uri, profile) {
 
   var docURI = uri.slice(0, uri.indexOf('#'));
   var webidRes = $rdf.sym(uri);
+  profile.loading = true;
+  scope.$apply();
 
   // fetch user data
   f.nowOrWhenFetched(docURI,undefined,function(ok, body) {
@@ -15,6 +17,8 @@ var getProfile = function(uri, profile) {
       profile.uri = uri;
       profile.name = uri;
       console.log('Warning - profile not found.');
+      profile.loading = false;
+      scope.$apply();
     } else {
       // get some basic info
       var name = g.any(webidRes, FOAF('name'));
@@ -36,6 +40,9 @@ var getProfile = function(uri, profile) {
       profile.uri = uri;
       profile.name = name;
       profile.picture = pic;
+      profile.loading = false;
+      
+      scope.$apply();
     }
   });
 };

@@ -175,69 +175,97 @@
         <div class="modal-body">
           <table class="full-width">
             <tr>
-              <td class="permission-icons">
-                <strong>Owners</strong>
-                <br/>
-                <i class="fa fa-2x fa-lock vmiddle"></i>
+              <td class="pull-left">
+                <div class="permission-icons">
+                  <strong>Owners</strong>
+                  <br/>
+                  <i class="fa fa-2x fa-lock vmiddle"></i>
+                </div>
               </td>
-              <td>
-                <p ng-repeat="owner in owners">
-                  {{trunc(owner.profile.name, 30)}}
-                  <label ng-repeat="(key, val) in owner.modes|orderBy:$index" class="pull-right">
-                    <input type="checkbox" checklist-model="owner.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
-                  </label>
-                </p>
-                <p><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></p>
-              </td>
-            </tr>
-            <tr><td colspan="2"><hr/></td></tr>
-            <tr>
-              <td class="permission-icons">
-                <strong>Users</strong>
-                <br/>
-                <i class="fa fa-2x fa-user vmiddle"></i>
-              </td>
-              <td>
-                <p ng-repeat="user in users">
-                  {{trunc(user.profile.name, 30)}}
-                  <label ng-repeat="(key, val) in user.modes|orderBy:$index" class="pull-right">
-                    <input type="checkbox" checklist-model="owner.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
-                  </label>
-                </p>
-                <p><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></p>
+              <td class="vtop">
+                <div ng-repeat="owner in owners">
+                  <div class="pull-left">
+                    <img ng-src="assets/loading.gif" ng-show="owner.profile.loading" />
+                    <a href="{{owner.profile.uri}}" target="_blank">{{trunc(owner.profile.name, 30)}}</a>
+                  </div>
+                  <div class="boxes pull-right">
+                    <label ng-repeat="(key, val) in owner.modes|orderBy:$index" class="pull-right">
+                      <input type="checkbox" checklist-model="owner.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
+                    </label>
+                  </div>
+                </div>
+                <div class="spacer"><br></div>
+                <div><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></div>
               </td>
             </tr>
             <tr><td colspan="2"><hr/></td></tr>
             <tr>
-              <td class="permission-icons">
-                <strong>Groups</strong>
-                <br/>
-                <i class="fa fa-2x fa-users vmiddle"></i>
+              <td class="pull-left">
+                <div class="permission-icons">
+                  <strong>Users</strong>
+                  <br/>
+                  <i class="fa fa-2x fa-user vmiddle"></i>
+                </div>
               </td>
-              <td>
-                <p ng-repeat="group in groups">
-                  {{trunc(group.profile.name, 30)}}
-                  <label ng-repeat="(key, val) in group.modes|orderBy:$index" class="pull-right">
-                    <input type="checkbox" checklist-model="owner.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
-                  </label>
-                </p>
-                <p><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></p>
+              <td class="vtop">
+                <div ng-repeat="user in users">
+                  <div class="pull-left">
+                    <img ng-src="assets/loading.gif" ng-show="user.profile.loading" />
+                    <a href="{{user.profile.uri}}" target="_blank">{{trunc(user.profile.name, 30)}}</a>
+                  </div>
+                  <div class="boxes pull-right">
+                    <label ng-repeat="(key, val) in user.modes|orderBy:$index" class="pull-right">
+                      <input type="checkbox" checklist-model="user.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
+                    </label>
+                  </div>
+                </div>
+                <div class="spacer"><br></div>
+                <div class="vbottom"><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></div>
               </td>
             </tr>
             <tr><td colspan="2"><hr/></td></tr>
             <tr>
-              <td class="permission-icons">
-                <strong>Others</strong>
-                <br/>
-                <i class="fa fa-2x fa-unlock-alt vmiddle"></i>
+              <td class="pull-left">
+                <div class="permission-icons">
+                  <strong>Groups</strong>
+                  <br/>
+                  <i class="fa fa-2x fa-users vmiddle"></i>
+                </div>
               </td>
-              <td>
-                <p ng-repeat="other in others">
-                  Everyone
-                  <label ng-repeat="(key, val) in other.modes|orderBy:$index" class="pull-right">
-                    <input type="checkbox" checklist-model="owner.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
-                  </label>
-                </p>
+              <td class="vtop">
+                <div ng-repeat="group in groups">
+                  <div class="pull-left">
+                    <img ng-src="assets/loading.gif" ng-show="group.profile.loading" />
+                    <a href="{{group.profile.uri}}" target="_blank">{{trunc(group.profile.name, 30)}}</a>
+                  </div>
+                  <div class="boxes pull-right">
+                    <label ng-repeat="(key, val) in group.modes|orderBy:$index" class="pull-right">
+                      <input type="checkbox" checklist-model="group.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
+                    </label>
+                  </div>
+                </div>
+                <div class="spacer"><br></div>
+                <div class="vbottom"><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></div>
+              </td>
+            </tr>
+            <tr><td colspan="2"><hr/></td></tr>
+            <tr>
+              <td class="pull-left">
+                <div class="permission-icons">
+                  <strong>Others</strong>
+                  <br/>
+                  <i class="fa fa-2x fa-unlock-alt vmiddle"></i>
+                </div>
+              </td>
+              <td class="vtop">
+                <div>
+                  <div class="pull-left">Everyone</div>
+                  <div class="boxes pull-right">
+                    <label ng-repeat="(key, val) in others.modes|orderBy:$index" class="pull-right">
+                      <input type="checkbox" checklist-model="other.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
+                    </label>
+                  </div>
+                </div>
               </td>
             </tr>
           </table>

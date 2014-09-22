@@ -627,7 +627,7 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
   $scope.groups = [];
   $scope.others = [];
   
-  $scope.loading = true;  
+  $scope.loading = true;
   
   // Find ACL uri
   $http({
@@ -656,6 +656,8 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
       if (!ok) {
         console.log('Error -- could not fetch ACL file. Is the server available?');
         $scope.listLocation = false;
+        $scope.loading = false;
+        $scope.$apply();
       }
 
       $scope.findModes = function(modes) {
@@ -674,7 +676,11 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
       };
       
       $scope.trunc = function (str, size) {
-        return (str.length > size+3)?str.slice(0, size)+'...':str;
+        if (str !== undefined) {
+          return (str.length > size+3)?str.slice(0, size)+'...':str;
+        } else {
+          return '';
+        }
       };
       
       var policies = g.statementsMatching(undefined, RDF("type"), WAC("Authorization"));
@@ -690,10 +696,11 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
             var owner = {};
             owner.policy = owners[i].subject.uri;
             owner.profile = {};
-            getProfile(owners[i].object.uri, owner.profile);
+            getProfile($scope, owners[i].object.uri, owner.profile);
             owner.modes = [];
             console.log(owner);
             owner.modes = $scope.findModes(g.statementsMatching(owners[i].subject, WAC("mode"), undefined));
+            owner.defaultForNew = (g.statementsMatching(owners[i].subject, WAC("defaultForNew"), $rdf.sym($scope.uri)).length > 0)?true:false;
             
             console.log(owner);
             $scope.owners.push(owner);
@@ -707,7 +714,7 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
             var user = {};
             user.policy = users[i].subject.uri;
             user.profile = {};
-            getProfile(users[i].object.uri, user.profile);
+            getProfile($scope, users[i].object.uri, user.profile);
             user.modes = [];
             user.modes = $scope.findModes(g.statementsMatching(users[i].subject, WAC("mode"), undefined));
             
@@ -716,6 +723,7 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
         }
         
         var groups = g.statementsMatching(undefined, WAC("agentClass"), undefined);
+        var others = [];
         console.log("Found groups: "+groups.length);
         if (groups !== undefined && groups.length > 0) {
           for (i=0; i<groups.length;i++) {                         
@@ -723,18 +731,24 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
             var group = {};
             group.policy = groups[i].subject.uri;
             group.profile = {};
-            getProfile(groups[i].object.uri, group.profile);
+            getProfile($scope, groups[i].object.uri, group.profile);
             group.modes = [];
             group.modes = $scope.findModes(g.statementsMatching(groups[i].subject, WAC("mode"), undefined));
             
             if (groups[i].object.uri === FOAF("Agent").uri) {
-              $scope.others.push(group);
+              others.push(group);
             } else {
               $scope.groups.push(group);
             }
           }
         }
+        
+        if (others.length > 0) {
+          $scope.others = others[0];
+          console.log($scope.others);
+        }
         $scope.loading = false;
+        $scope.$apply();
       }
     });
   }).
