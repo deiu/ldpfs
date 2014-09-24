@@ -9,7 +9,6 @@ var getProfile = function(scope, uri, profile) {
   var docURI = (uri.indexOf('#') >= 0)?uri.slice(0, uri.indexOf('#')):uri;
   var webidRes = $rdf.sym(uri);
   profile.loading = true;
-  scope.$apply();
 
   // fetch user data
   f.nowOrWhenFetched(docURI,undefined,function(ok, body) {
@@ -37,8 +36,7 @@ var getProfile = function(scope, uri, profile) {
         }
       }
 
-      profile.uri = uri;
-      profile.name = name;
+      profile.fullname = name;
       profile.picture = pic;
       profile.loading = false;
       

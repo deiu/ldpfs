@@ -630,6 +630,14 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
   $scope.newUser = [];
   
   $scope.loading = true;
+
+  $scope.trunc = function (str, size) {
+    if (str !== undefined) {
+      return (str.length > size - 3)?str.slice(0, size)+'...':str;
+    } else {
+      return '';
+    }
+  };
   
   // Find ACL uri
   $http({
@@ -661,7 +669,7 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
         $scope.loading = false;
         $scope.$apply();
       }
-
+      
       $scope.findModes = function(modes) {
         var ret = {Read: false, Write: false, Append: false, Control: false};
         if (modes !== undefined && modes.length > 0) {
@@ -677,17 +685,18 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
         }
         return ret;
       };
-      
-      $scope.getPolicies = function(triples, cat,arr) {
+
+      $scope.getPolicies = function(triples, cat, arr) {
         if (triples !== undefined && triples.length > 0) {
           for (i=0; i<triples.length;i++) {
             var policy = {};
             policy.uri = triples[i].subject.uri;
-            policy.profile = {};
             if (triples[i].object.uri === FOAF("Agent").uri) {
-              policy.profile.uri = FOAF("Agent").uri;
+              policy.webid = FOAF("Agent").uri;
+              policy.fullname = policy.webid;
             } else {
-              getProfile($scope, triples[i].object.uri, policy.profile);
+              policy.webid = triples[i].object.uri;
+              getProfile($scope, triples[i].object.uri, policy);
             }
             policy.modes = $scope.findModes(g.statementsMatching(triples[i].subject, WAC("mode"), undefined));
             if ($scope.resType == 'Directory') {
@@ -706,14 +715,6 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
           return true;
         } else {
           return false; 
-        }
-      };
-      
-      $scope.trunc = function (str, size) {
-        if (str !== undefined) {
-          return (str.length > size - 3)?str.slice(0, size)+'...':str;
-        } else {
-          return '';
         }
       };
       
@@ -750,9 +751,9 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
         g.add($rdf.sym("#"+i), RDF("type"), WAC('Authorization'));
         g.add($rdf.sym("#"+i), WAC("accessTo"), $rdf.sym(decodeURIComponent($scope.uri)));
         if ($scope.policies[i].isGroup === true) {
-          g.add($rdf.sym("#"+i), WAC("agentClass"), $rdf.sym($scope.policies[i].profile.uri));
+          g.add($rdf.sym("#"+i), WAC("agentClass"), $rdf.sym($scope.policies[i].webid));
         } else {
-          g.add($rdf.sym("#"+i), WAC("agent"), $rdf.sym($scope.policies[i].profile.uri));
+          g.add($rdf.sym("#"+i), WAC("agent"), $rdf.sym($scope.policies[i].webid));
         }
         if ($scope.policies[i].defaultForNew === true) {
           g.add($rdf.sym("#"+i), WAC("defaultForNew"), $rdf.sym(decodeURIComponent($scope.uri))); 
@@ -793,10 +794,28 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
     });
   };
   
+  $scope.removeUser = function (uri, webid) {
+    if ($scope.policies !== undefined) {      
+      angular.forEach($scope.policies, function(policy, key) {
+        if(policy.uri === uri && policy.webid === webid) {
+          $scope.policies.splice(key,1);
+        }
+      });
+    }
+  };
+  
   $scope.showNewUser = function (cat) {
     $scope.newUser[cat] = {};
-    var newUser = $scope.newUser[cat];
-    
+    var newUser = $scope.newUser[cat];    
+  };
+  
+  $scope.addNewUser = function(cat, webid) {
+    var user = {};
+    user.webid = webid;
+    user.cat = cat;
+    getProfile($scope, webid, user);
+    $scope.policies.push(user);
+    $scope.newUser[cat] = undefined;
   };
   
   $scope.cancelNewUser = function(cat) {
