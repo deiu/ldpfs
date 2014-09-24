@@ -6,7 +6,7 @@ var getProfile = function(scope, uri, profile) {
   // add CORS proxy
   $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
-  var docURI = uri.slice(0, uri.indexOf('#'));
+  var docURI = (uri.indexOf('#') >= 0)?uri.slice(0, uri.indexOf('#')):uri;
   var webidRes = $rdf.sym(uri);
   profile.loading = true;
   scope.$apply();

@@ -435,7 +435,7 @@ angular.module( 'App.list', [
     });
   };
   // ACL dialog
-  $scope.openACLEditor = function (uri) {
+  $scope.openACLEditor = function (uri, type) {
     console.log("Opening ACL editor");
     var modalInstance = $modal.open({
       templateUrl: 'acleditor.html',
@@ -443,6 +443,9 @@ angular.module( 'App.list', [
       resolve: { 
         uri: function () {
           return uri;
+        },
+        type: function() {
+          return type;
         }
       }
     });
@@ -618,14 +621,12 @@ var ModalUploadCtrl = function ($scope, $modalInstance, $upload, url, resources)
   };
 };
 
-var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
+var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
   $scope.uri = uri;
+  $scope.resType = type;
   $scope.resource = decodeURIComponent(basename(uri));
   $scope.aclURI = '';
-  $scope.owners = [];
-  $scope.users = [];
-  $scope.groups = [];
-  $scope.others = [];
+  $scope.policies = [];
   
   $scope.loading = true;
   
@@ -661,7 +662,7 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
       }
 
       $scope.findModes = function(modes) {
-        var ret = {"Read": false, "Write": false, "Append": false};
+        var ret = {Read: false, Write: false, Append: false, Control: false};
         if (modes !== undefined && modes.length > 0) {
           for (var i in modes) {
             if (modes[i] !== undefined) {
@@ -669,15 +670,47 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
               if (mode == "Read") { ret.Read = true; }
               else if (mode == "Write") { ret.Write = true; }
               else if (mode == "Append") { ret.Append = true; }
+              else if (mode == "Control") { ret.Control = true; }
             }
           }
-        } 
+        }
         return ret;
+      };
+      
+      $scope.getPolicies = function(triples, cat,arr) {
+        if (triples !== undefined && triples.length > 0) {
+          for (i=0; i<triples.length;i++) {
+            var policy = {};
+            policy.uri = triples[i].subject.uri;
+            policy.profile = {};
+            if (triples[i].object.uri === FOAF("Agent").uri) {
+              policy.profile.uri = FOAF("Agent").uri;
+            } else {
+              getProfile($scope, triples[i].object.uri, policy.profile);
+            }
+            policy.modes = $scope.findModes(g.statementsMatching(triples[i].subject, WAC("mode"), undefined));
+            if ($scope.resType == 'Directory') {
+              policy.defaultForNew = (g.statementsMatching(triples[i].subject, WAC("defaultForNew"), $rdf.sym($scope.uri)).length > 0)?true:false;
+            }
+            policy.isGroup = (cat === 'group')?true:false;
+            if (triples[i].object.uri === FOAF("Agent").uri) {
+              policy.cat = 'others';
+            } else if (policy.modes.Control === true) {
+              policy.cat = 'owner';
+            } else {
+              policy.cat = cat;
+            }
+            arr.push(policy);
+          }
+          return true;
+        } else {
+          return false; 
+        }
       };
       
       $scope.trunc = function (str, size) {
         if (str !== undefined) {
-          return (str.length > size+3)?str.slice(0, size)+'...':str;
+          return (str.length > size - 3)?str.slice(0, size)+'...':str;
         } else {
           return '';
         }
@@ -685,68 +718,9 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
       
       var policies = g.statementsMatching(undefined, RDF("type"), WAC("Authorization"));
       if (policies.length > 0) {
-        var i = 0;
+        $scope.getPolicies(g.statementsMatching(undefined, WAC("agent"), undefined), 'user', $scope.policies);
+        $scope.getPolicies(g.statementsMatching(undefined, WAC("agentClass"), undefined), 'group', $scope.policies);
         
-        var owners = g.statementsMatching(undefined, WAC("owner"), undefined);
-        console.log("Found owners: "+owners.length);
-        if (owners !== undefined && owners.length > 0) {
-          console.log("Got owners");
-          for (i=0; i<owners.length;i++) {
-            console.log(owners[i]);
-            var owner = {};
-            owner.policy = owners[i].subject.uri;
-            owner.profile = {};
-            getProfile($scope, owners[i].object.uri, owner.profile);
-            owner.modes = [];
-            console.log(owner);
-            owner.modes = $scope.findModes(g.statementsMatching(owners[i].subject, WAC("mode"), undefined));
-            owner.defaultForNew = (g.statementsMatching(owners[i].subject, WAC("defaultForNew"), $rdf.sym($scope.uri)).length > 0)?true:false;
-            
-            console.log(owner);
-            $scope.owners.push(owner);
-          }
-        }
-        
-        var users  = g.statementsMatching(undefined, WAC("agent"), undefined);
-        console.log("Found users: "+users.length);
-        if (users !== undefined && users.length > 0) {
-          for (i=0; i<users.length;i++) {
-            var user = {};
-            user.policy = users[i].subject.uri;
-            user.profile = {};
-            getProfile($scope, users[i].object.uri, user.profile);
-            user.modes = [];
-            user.modes = $scope.findModes(g.statementsMatching(users[i].subject, WAC("mode"), undefined));
-            
-            $scope.users.push(user);
-          }
-        }
-        
-        var groups = g.statementsMatching(undefined, WAC("agentClass"), undefined);
-        var others = [];
-        console.log("Found groups: "+groups.length);
-        if (groups !== undefined && groups.length > 0) {
-          for (i=0; i<groups.length;i++) {                         
-            // add more info about the group
-            var group = {};
-            group.policy = groups[i].subject.uri;
-            group.profile = {};
-            getProfile($scope, groups[i].object.uri, group.profile);
-            group.modes = [];
-            group.modes = $scope.findModes(g.statementsMatching(groups[i].subject, WAC("mode"), undefined));
-            
-            if (groups[i].object.uri === FOAF("Agent").uri) {
-              others.push(group);
-            } else {
-              $scope.groups.push(group);
-            }
-          }
-        }
-        
-        if (others.length > 0) {
-          $scope.others = others[0];
-          console.log($scope.others);
-        }
         $scope.loading = false;
         $scope.$apply();
       }
@@ -761,6 +735,61 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri) {
       notify('Failed - HTTP '+status, data, 5000);
     }
   });
+  
+  $scope.serializeTurtle = function () {
+    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+    var RDFS = $rdf.Namespace("http://www.w3.org/2000/01/rdf-schema#");
+    var WAC = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
+    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+
+    var g = new $rdf.graph();
+
+    if ($scope.policies.length > 0) {      
+      for (var i=0; i<$scope.policies.length;i++) {
+        g.add($rdf.sym("#"+i), RDF("type"), WAC('Authorization'));
+        g.add($rdf.sym("#"+i), WAC("accessTo"), $rdf.sym(decodeURIComponent($scope.uri)));
+        if ($scope.policies[i].isGroup === true) {
+          g.add($rdf.sym("#"+i), WAC("agentClass"), $rdf.sym($scope.policies[i].profile.uri));
+        } else {
+          g.add($rdf.sym("#"+i), WAC("agent"), $rdf.sym($scope.policies[i].profile.uri));
+        }
+        if ($scope.policies[i].defaultForNew === true) {
+          g.add($rdf.sym("#"+i), WAC("defaultForNew"), $rdf.sym(decodeURIComponent($scope.uri))); 
+        }
+        if ($scope.policies[i].cat == "owner" && $scope.aclURI.length > 0) {
+          g.add($rdf.sym("#"+i), WAC("accessTo"), $rdf.sym(decodeURIComponent($scope.aclURI)));
+          g.add($rdf.sym("#"+i), WAC("mode"), WAC("Control"));
+        } else {
+          for (var mode in $scope.policies[i].modes) {
+            if ($scope.policies[i].modes[mode] === true) {
+              g.add($rdf.sym("#"+i), WAC("mode"), WAC(mode));
+            }
+          }
+        }
+      }
+    }
+    var s = new $rdf.Serializer(g).toN3(g);
+    return s;
+  };
+  
+  // PUT the ACL policy on the server
+  $scope.setAcl = function () {
+    var acls = $scope.serializeTurtle();
+    $http({
+      method: 'PUT',
+      url: $scope.aclURI,
+      withCredentials: true,
+      headers: {"Content-Type": "text/turtle"},
+      data: acls
+    }).
+    success(function() {
+      notify('Success', 'Updated ACL policies.');
+      $modalInstance.close();
+    }).
+    error(function(data, status, headers) {
+      notify('Error - '+status, data);
+    });
+  };
   
   $scope.ok = function () {
     $modalInstance.close();

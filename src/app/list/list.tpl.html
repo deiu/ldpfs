@@ -57,7 +57,7 @@
               </button>
 					      <ul class="dropdown-menu dropdown-menu-right left" role="menu">
 					        <li><a href="#" ng-show="res.type != 'Directory'"><i class="fa fa-2x fa-pencil-square-o fa-fw vmiddle"></i> View/Edit</a></li>
-					        <li><a href ng-click="openACLEditor(res.uri)"><i class="fa fa-2x fa-unlock-alt fa-fw vmiddle"></i> Permissions</a></li>
+					        <li><a href ng-click="openACLEditor(res.uri, res.type)"><i class="fa fa-2x fa-unlock-alt fa-fw vmiddle"></i> Permissions</a></li>
 					        <li><a href ng-click="openDelete(res.uri)"><i class="fa fa-2x fa-trash-o fa-fw vmiddle"></i> Delete</a></li>
 					      </ul>
 					    </div>
@@ -183,19 +183,17 @@
                 </div>
               </td>
               <td class="vtop">
-                <div ng-repeat="owner in owners">
+                <div ng-repeat="policy in policies|filter:{cat: 'owner'}">
                   <div class="pull-left">
-                    <img ng-src="assets/loading.gif" ng-show="owner.profile.loading" />
-                    <a href="{{owner.profile.uri}}" target="_blank">{{trunc(owner.profile.name, 30)}}</a>
+                    <img ng-src="assets/loading.gif" ng-show="policy.profile.loading" />
+                    <a href="{{policy.profile.uri}}" target="_blank">{{trunc(policy.profile.name, 25)}}</a>
                   </div>
                   <div class="boxes pull-right">
-                    <label ng-repeat="(key, val) in owner.modes|orderBy:$index" class="pull-right">
-                      <input type="checkbox" checklist-model="owner.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
-                    </label>
+                    <input type="checkbox" ng-model="policy.defaultForNew" ng-show="resType == 'Directory'"/><div class="mode-label" tooltip-placement="bottom" tooltip="Applies to all resources within this directory." ng-show="resType == 'Directory'">Recursive</div>
                   </div>
+                  <br/>
                 </div>
-                <div class="spacer"><br></div>
-                <div><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></div>
+                <div class="spacer"><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></div>
               </td>
             </tr>
             <tr><td colspan="2"><hr/></td></tr>
@@ -208,19 +206,19 @@
                 </div>
               </td>
               <td class="vtop">
-                <div ng-repeat="user in users">
+                <div ng-repeat="policy in policies|filter:{cat: 'user'}">
                   <div class="pull-left">
-                    <img ng-src="assets/loading.gif" ng-show="user.profile.loading" />
-                    <a href="{{user.profile.uri}}" target="_blank">{{trunc(user.profile.name, 30)}}</a>
+                    <img ng-src="assets/loading.gif" ng-show="policy.profile.loading" />
+                    <a href="{{policy.profile.uri}}" target="_blank">{{trunc(policy.profile.name, 25)}}</a>
                   </div>
                   <div class="boxes pull-right">
-                    <label ng-repeat="(key, val) in user.modes|orderBy:$index" class="pull-right">
-                      <input type="checkbox" checklist-model="user.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
-                    </label>
+                      <input type="checkbox" ng-model="policy.modes.Read"/><div class="mode-label">Read</div>
+                      <input type="checkbox" ng-model="policy.modes.Write"/><div class="mode-label">Write</div>
+                      <input type="checkbox" ng-model="policy.modes.Append"/><div class="mode-label" tooltip-placement="bottom" tooltip="Able to write without reading or deleting.">Append</div>
+                      <input type="checkbox" ng-model="policy.defaultForNew" ng-show="resType == 'Directory'"/><div class="mode-label" tooltip-placement="bottom" tooltip="Applies to all resources within this directory." ng-show="resType == 'Directory'">Recursive</div>
                   </div>
                 </div>
-                <div class="spacer"><br></div>
-                <div class="vbottom"><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></div>
+                <div class="spacer"><br><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></div>
               </td>
             </tr>
             <tr><td colspan="2"><hr/></td></tr>
@@ -233,19 +231,19 @@
                 </div>
               </td>
               <td class="vtop">
-                <div ng-repeat="group in groups">
+                <div ng-repeat="policy in policies|filter:{cat: 'group'}">
                   <div class="pull-left">
-                    <img ng-src="assets/loading.gif" ng-show="group.profile.loading" />
-                    <a href="{{group.profile.uri}}" target="_blank">{{trunc(group.profile.name, 30)}}</a>
+                    <img ng-src="assets/loading.gif" ng-show="policy.profile.loading" />
+                    <a href="{{policy.profile.uri}}" target="_blank">{{trunc(policy.profile.name, 25)}}</a>
                   </div>
                   <div class="boxes pull-right">
-                    <label ng-repeat="(key, val) in group.modes|orderBy:$index" class="pull-right">
-                      <input type="checkbox" checklist-model="group.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
-                    </label>
+                      <input type="checkbox" ng-model="policy.modes.Read"/><div class="mode-label">Read</div>
+                      <input type="checkbox" ng-model="policy.modes.Write"/><div class="mode-label">Write</div>
+                      <input type="checkbox" ng-model="policy.modes.Append"/><div class="mode-label" tooltip-placement="bottom" tooltip="Able to write without reading or deleting.">Append</div>
+                      <input type="checkbox" ng-model="policy.defaultForNew" ng-show="resType == 'Directory'"/><div class="mode-label" tooltip-placement="bottom" tooltip="Applies to all resources within this directory." ng-show="resType == 'Directory'">Recursive</div>
                   </div>
                 </div>
-                <div class="spacer"><br></div>
-                <div class="vbottom"><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></div>
+                <div class="spacer"><br><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></div>
               </td>
             </tr>
             <tr><td colspan="2"><hr/></td></tr>
@@ -258,12 +256,15 @@
                 </div>
               </td>
               <td class="vtop">
-                <div>
-                  <div class="pull-left">Everyone</div>
+                <div ng-repeat="policy in policies|filter:{cat: 'others'}|limitTo:1">
+                  <div class="pull-left">
+                   Everyone
+                  </div>
                   <div class="boxes pull-right">
-                    <label ng-repeat="(key, val) in others.modes|orderBy:$index" class="pull-right">
-                      <input type="checkbox" checklist-model="other.modes" checklist-value="val" ng-checked="val"/>&nbsp{{key}}&nbsp;
-                    </label>
+                      <input type="checkbox" ng-model="policy.modes.Read"/><div class="mode-label">Read</div>
+                      <input type="checkbox" ng-model="policy.modes.Write"/><div class="mode-label">Write</div>
+                      <input type="checkbox" ng-model="policy.modes.Append"/><div class="mode-label" tooltip-placement="bottom" tooltip="Able to write without reading or deleting.">Append</div>
+                      <input type="checkbox" ng-model="policy.defaultForNew" ng-show="resType == 'Directory'"/><div class="mode-label" tooltip-placement="bottom" tooltip="Applies to all resources within this directory." ng-show="resType == 'Directory'">Recursive</div>
                   </div>
                 </div>
               </td>
@@ -271,7 +272,7 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" ng-click="setAcl(uri)">Yes</button>
+          <button class="btn btn-primary" ng-click="setAcl()">Set permissions</button>
           <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
         </div>
     </div>
