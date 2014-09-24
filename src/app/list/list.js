@@ -627,6 +627,7 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
   $scope.resource = decodeURIComponent(basename(uri));
   $scope.aclURI = '';
   $scope.policies = [];
+  $scope.newUser = [];
   
   $scope.loading = true;
   
@@ -758,6 +759,7 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
         }
         if ($scope.policies[i].cat == "owner" && $scope.aclURI.length > 0) {
           g.add($rdf.sym("#"+i), WAC("accessTo"), $rdf.sym(decodeURIComponent($scope.aclURI)));
+          g.add($rdf.sym("#"+i), WAC("defaultForNew"), $rdf.sym(decodeURIComponent($scope.uri)));
           g.add($rdf.sym("#"+i), WAC("mode"), WAC("Control"));
         } else {
           for (var mode in $scope.policies[i].modes) {
@@ -789,6 +791,16 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
     error(function(data, status, headers) {
       notify('Error - '+status, data);
     });
+  };
+  
+  $scope.showNewUser = function (cat) {
+    $scope.newUser[cat] = {};
+    var newUser = $scope.newUser[cat];
+    
+  };
+  
+  $scope.cancelNewUser = function(cat) {
+    delete $scope.newUser[cat];
   };
   
   $scope.ok = function () {

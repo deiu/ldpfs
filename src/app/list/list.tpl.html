@@ -183,17 +183,23 @@
                 </div>
               </td>
               <td class="vtop">
-                <div ng-repeat="policy in policies|filter:{cat: 'owner'}">
+                <div class="policy" ng-repeat="policy in policies|filter:{cat: 'owner'}">
                   <div class="pull-left">
                     <img ng-src="assets/loading.gif" ng-show="policy.profile.loading" />
+                    <button class="btn btn-sm" ng-click="removeUser(policy.profile.uri)" ng-hide="policy.profile.loading"><i class="fa fa-trash-o orange"></i></button>
                     <a href="{{policy.profile.uri}}" target="_blank">{{trunc(policy.profile.name, 25)}}</a>
-                  </div>
-                  <div class="boxes pull-right">
-                    <input type="checkbox" ng-model="policy.defaultForNew" ng-show="resType == 'Directory'"/><div class="mode-label" tooltip-placement="bottom" tooltip="Applies to all resources within this directory." ng-show="resType == 'Directory'">Recursive</div>
                   </div>
                   <br/>
                 </div>
-                <div class="spacer"><button class="btn btn-primary" ng-click="addUser()"><i class="fa fa-plus"></i></button></div>
+                <div class="spacer">
+                  <div class="policy" ng-show="newUser['owner']">
+                    <input class="new-user" type="text" ng-model="newUser['owner'].uri" />
+                    <button class="btn btn-sm btn-primary" ng-click="newUser()"><i class="fa fa-plus"></i></button>
+                    <button class="btn btn-sm" ng-click="cancelNewUser('owner')">Cancel</button>
+                    <br/>
+                  </div>
+                  <button class="btn btn-primary" ng-click="showNewUser('owner')"><i class="fa fa-plus"></i></button>
+                </div>
               </td>
             </tr>
             <tr><td colspan="2"><hr/></td></tr>
