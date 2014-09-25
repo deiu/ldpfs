@@ -183,6 +183,10 @@
                 </div>
               </td>
               <td class="vtop">
+                <div class="policy" ng-show="policies.length <= 1">
+                  <h3 class="orange">Attention!</h3>
+                  You will not be able to update this policy in the future if you do not set at least one owner. Click the button below to add an owner.
+                </div>
                 <div class="policy" ng-repeat="policy in policies|filter:{cat: 'owner'}">
                   <div class="pull-left">
                     <img ng-src="assets/loading.gif" ng-show="policy.loading" />

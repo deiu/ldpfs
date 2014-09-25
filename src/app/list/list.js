@@ -798,13 +798,14 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, aclURI, type,
       }
     });
   } else {
+    //todo add a default owner
+    var others = {};
+    others.webid = FOAF("Agent").uri;
+    others.cat = 'other';
+    others.isGroup = true;
+    others.modes = $scope.findModes();
+    $scope.policies.push(others);
     $scope.loading = false;
-    var policy = {};
-    policy.webid = FOAF("Agent").uri;
-    policy.cat = 'other';
-    policy.isGroup = true;
-    policy.modes = $scope.findModes();
-    $scope.policies.push(policy);
   }
   
   $scope.serializeTurtle = function () {
@@ -840,7 +841,6 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, aclURI, type,
         }
       }
     }
-    console.log(g.toNT());
     var s = new $rdf.Serializer(g).toN3(g);
     return s;
   };
