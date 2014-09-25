@@ -183,7 +183,7 @@
                 </div>
               </td>
               <td class="vtop">
-                <div class="policy" ng-show="policies.length <= 1">
+                <div class="policy" ng-hide="gotOwner">
                   <h3 class="orange">Attention!</h3>
                   You will not be able to update this policy in the future if you do not set at least one owner. Click the button below to add an owner.
                 </div>
@@ -197,7 +197,8 @@
                 </div>
                 <div class="spacer">
                   <div class="policy" ng-show="newUser['owner']">
-                    <input class="new-user" type="text" ng-model="newUser['owner'].webid" />
+                    <input class="new-user" type="text" ng-model="newUser['owner'].webid" typeahead="match.webid as match.name for match in lookupWebID($viewValue)|filter:{name:$viewValue}|limitTo:8" typeahead-loading="searchloading" typeahead-min-length="2" typeahead-wait-ms="500"/>
+                    <img ng-src="assets/loading.gif" ng-show="searchloading" />
                     <button class="btn btn-sm btn-primary" ng-click="addNewUser('owner', newUser['owner'].webid)"><i class="fa fa-plus"></i></button>
                     <button class="btn btn-sm" ng-click="cancelNewUser('owner')">Cancel</button>
                     <br/>
@@ -232,7 +233,8 @@
                 </div>
                 <div class="spacer">
                   <div class="policy" ng-show="newUser['user']">
-                    <input class="new-user" type="text" ng-model="newUser['user'].webid" />
+                    <input class="new-user" type="text" ng-model="newUser['user'].webid" typeahead="match.webid as match.name for match in lookupWebID($viewValue)|filter:{name:$viewValue}|limitTo:8" typeahead-loading="searchloading" typeahead-min-length="2" typeahead-wait-ms="500"/>
+                    <img ng-src="assets/loading.gif" ng-show="searchloading" />
                     <button class="btn btn-sm btn-primary" ng-click="addNewUser('user', newUser['user'].webid)"><i class="fa fa-plus"></i></button>
                     <button class="btn btn-sm" ng-click="cancelNewUser('user')">Cancel</button>
                     <br/>
@@ -267,7 +269,8 @@
                 </div>
                 <div class="spacer">
                   <div class="policy" ng-show="newUser['group']">
-                    <input class="new-user" type="text" ng-model="newUser['group'].webid" />
+                    <input class="new-user" type="text" ng-model="newUser['group'].webid" typeahead="match.webid as match.name for match in lookupWebID($viewValue)|filter:{name:$viewValue}|limitTo:8" typeahead-loading="searchloading" typeahead-min-length="2" typeahead-wait-ms="500"/>
+                    <img ng-src="assets/loading.gif" ng-show="searchloading" />
                     <button class="btn btn-sm btn-primary" ng-click="addNewUser('group', newUser['group'].webid)"><i class="fa fa-plus"></i></button>
                     <button class="btn btn-sm" ng-click="cancelNewUser('group')">Cancel</button>
                     <br/>
@@ -307,4 +310,11 @@
         </div>
     </div>
   </script>
+  <script type="text/ng-template" id="webidresults.html">
+    <a>
+        <img ng-src="{{match.img}}" width="16">
+        <span bind-html-unsafe="match.name | typeaheadHighlight:query"></span>
+    </a>
+  </script>
+  
 </div>
