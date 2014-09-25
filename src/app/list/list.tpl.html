@@ -52,13 +52,13 @@
 					<td ng-hide="res.type==='-'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}">{{res.mtime|fromNow}}</div></td>
 					<td ng-hide="res.type==='-'" class="right">
 						<div class="btn-group" dropdown is-open="status.isopen">
-              <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
-                <i class="fa fa-angle-double-down"></i>
-              </button>
+                          <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
+                            <i class="fa fa-angle-double-down"></i>
+                          </button>
 					      <ul class="dropdown-menu dropdown-menu-right left" role="menu">
-					        <li><a href="#" ng-show="res.type != 'Directory'"><i class="fa fa-2x fa-pencil-square-o fa-fw vmiddle"></i> View/Edit</a></li>
-					        <li><a href ng-click="openACLEditor(res.uri, res.type)"><i class="fa fa-2x fa-unlock-alt fa-fw vmiddle"></i> Permissions</a></li>
-					        <li><a href ng-click="openDelete(res.uri)"><i class="fa fa-2x fa-trash-o fa-fw vmiddle"></i> Delete</a></li>
+					        <!-- <li><a ng-show="res.type != 'Directory'"><i class="fa fa-2x fa-pencil-square-o fa-fw vmiddle"></i> View/Edit</a></li> -->
+					        <li><a ng-click="openACLEditor(res.uri, res.type)"><i class="fa fa-2x fa-unlock-alt fa-fw vmiddle"></i> Permissions</a></li>
+					        <li><a ng-click="openDelete(res.uri)"><i class="fa fa-2x fa-trash-o fa-fw vmiddle"></i> Delete</a></li>
 					      </ul>
 					    </div>
 					</td>
@@ -198,7 +198,7 @@
                     <button class="btn btn-sm" ng-click="cancelNewUser('owner')">Cancel</button>
                     <br/>
                   </div>
-                  <button class="btn btn-primary" ng-click="showNewUser('owner')"><i class="fa fa-plus"></i></button>
+                  <button class="btn btn-primary" ng-click="showNewUser('owner')">Add</button>
                 </div>
               </td>
             </tr>
@@ -233,7 +233,7 @@
                     <button class="btn btn-sm" ng-click="cancelNewUser('user')">Cancel</button>
                     <br/>
                   </div>
-                  <button class="btn btn-primary" ng-click="showNewUser('user')"><i class="fa fa-plus"></i></button>
+                  <button class="btn btn-primary" ng-click="showNewUser('user')">Add</button>
                 </div>
               </td>
             </tr>
@@ -268,7 +268,7 @@
                     <button class="btn btn-sm" ng-click="cancelNewUser('group')">Cancel</button>
                     <br/>
                   </div>
-                  <button class="btn btn-primary" ng-click="showNewUser('group')"><i class="fa fa-plus"></i></button>
+                  <button class="btn btn-primary" ng-click="showNewUser('group')">Add</button>
                 </div>
               </td>
             </tr>
@@ -282,7 +282,7 @@
                 </div>
               </td>
               <td class="vtop">
-                <div ng-repeat="policy in policies|filter:{cat: 'others'}|limitTo:1">
+                <div ng-repeat="policy in policies|filter:{cat: 'other'}|limitTo:1">
                   <div class="pull-left">
                    Everyone
                   </div>

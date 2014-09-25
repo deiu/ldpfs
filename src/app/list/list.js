@@ -436,17 +436,79 @@ angular.module( 'App.list', [
   };
   // ACL dialog
   $scope.openACLEditor = function (uri, type) {
-    console.log("Opening ACL editor");
-    var modalInstance = $modal.open({
-      templateUrl: 'acleditor.html',
-      controller: ModalACLEditor,
-      resolve: { 
-        uri: function () {
-          return uri;
-        },
-        type: function() {
-          return type;
+    // Find ACL uri and check if we can modify it
+    $http({
+      method: 'HEAD',
+      url: uri,
+      withCredentials: true
+    }).
+    success(function(data, status, headers) {
+      // add dir to local list
+      var lh = parseLinkHeader(headers('Link'));
+      var aclURI = (lh['acl'] && lh['acl']['href'].length > 0)?lh['acl']['href']:'';
+
+      $http({
+        method: 'HEAD',
+        url: aclURI,
+        withCredentials: true
+      }).
+      success(function(data, status, headers) {
+        var modalInstance = $modal.open({
+          templateUrl: 'acleditor.html',
+          controller: ModalACLEditor,
+          resolve: { 
+            uri: function () {
+              return uri;
+            },
+            aclURI: function () {
+              return aclURI;
+            },
+            type: function() {
+              return type;
+            },
+            exists: function() {
+              return true;
+            }
+          }
+        });
+      }).
+      error(function(data, status) {
+        if (status == 404) {
+          // missing ACL file is OK
+          var modalInstance = $modal.open({
+            templateUrl: 'acleditor.html',
+            controller: ModalACLEditor,
+            resolve: { 
+              uri: function () {
+                return uri;
+              },
+              aclURI: function () {
+                return aclURI;
+              },
+              type: function() {
+                return type;
+              },
+              exists: function() {
+                return false;
+              }
+            }
+          });
+        } else if (status == 401) {
+          notify('Forbidden', 'Authentication required to change permissions for: '+decodeURIComponent(basename(uri)));
+        } else if (status == 403) {
+          notify('Forbidden', 'You are not allowed to change permissions for: '+decodeURIComponent(basename(uri)));
+        } else {
+          notify('Failed - HTTP '+status, data, 5000);
         }
+      });
+    }).
+    error(function(data, status) {
+      if (status == 401) {
+        notify('Forbidden', 'Authentication required to change permissions for: '+decodeURIComponent(basename(uri)));
+      } else if (status == 403) {
+        notify('Forbidden', 'You are not allowed to change permissions for: '+decodeURIComponent(basename(uri)));
+      } else {
+        notify('Failed - HTTP '+status, data, 5000);
       }
     });
   };
@@ -621,16 +683,28 @@ var ModalUploadCtrl = function ($scope, $modalInstance, $upload, url, resources)
   };
 };
 
-var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
+var ModalACLEditor = function ($scope, $modalInstance, $http, uri, aclURI, type, exists) {
   $scope.uri = uri;
+  $scope.aclURI = aclURI;
   $scope.resType = type;
   $scope.resource = decodeURIComponent(basename(uri));
-  $scope.aclURI = '';
   $scope.policies = [];
   $scope.newUser = [];
   
   $scope.loading = true;
+    
+  // Load ACL triples
+  var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+  var RDFS = $rdf.Namespace("http://www.w3.org/2000/01/rdf-schema#");
+  var WAC = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
+  var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
 
+  var g = $rdf.graph();
+  
+  // add CORS proxy
+  $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+  
+  // truncate string
   $scope.trunc = function (str, size) {
     if (str !== undefined) {
       return (str.length > size - 3)?str.slice(0, size)+'...':str;
@@ -639,29 +713,25 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
     }
   };
   
-  // Find ACL uri
-  $http({
-    method: 'HEAD',
-    url: uri,
-    withCredentials: true
-  }).
-  success(function(data, status, headers) {
-    // add dir to local list
-    var lh = parseLinkHeader(headers('Link'));
-    $scope.aclURI = (lh['acl'] && lh['acl']['href'].length > 0)?lh['acl']['href']:'';
-  
-    // Load ACL triples
-    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-    var RDFS = $rdf.Namespace("http://www.w3.org/2000/01/rdf-schema#");
-    var WAC = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
-    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+  $scope.findModes = function(modes) {
+    var ret = {Read: false, Write: false, Append: false, Control: false};
+    if (modes !== undefined && modes.length > 0) {
+      for (var i in modes) {
+        if (modes[i] !== undefined) {
+          mode = modes[i].object.uri.slice(modes[i].object.uri.indexOf('#')+1, modes[i].object.uri.length);
+          if (mode == "Read") { ret.Read = true; }
+          else if (mode == "Write") { ret.Write = true; }
+          else if (mode == "Append") { ret.Append = true; }
+          else if (mode == "Control") { ret.Control = true; }
+        }
+      }
+    }
+    return ret;
+  };
 
-    var g = $rdf.graph();
+  // fetch user data
+  if (exists) {
     var f = $rdf.fetcher(g, TIMEOUT);
-    // add CORS proxy
-    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
-
-    // fetch user data
     f.nowOrWhenFetched($scope.aclURI,undefined,function(ok, body) {
       if (!ok) {
         console.log('Error -- could not fetch ACL file. Is the server available?');
@@ -669,7 +739,7 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
         $scope.loading = false;
         $scope.$apply();
       }
-      
+
       $scope.findModes = function(modes) {
         var ret = {Read: false, Write: false, Append: false, Control: false};
         if (modes !== undefined && modes.length > 0) {
@@ -704,7 +774,7 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
             }
             policy.isGroup = (cat === 'group')?true:false;
             if (triples[i].object.uri === FOAF("Agent").uri) {
-              policy.cat = 'others';
+              policy.cat = 'other';
             } else if (policy.modes.Control === true) {
               policy.cat = 'owner';
             } else {
@@ -717,26 +787,25 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
           return false; 
         }
       };
-      
+
       var policies = g.statementsMatching(undefined, RDF("type"), WAC("Authorization"));
       if (policies.length > 0) {
         $scope.getPolicies(g.statementsMatching(undefined, WAC("agent"), undefined), 'user', $scope.policies);
         $scope.getPolicies(g.statementsMatching(undefined, WAC("agentClass"), undefined), 'group', $scope.policies);
-        
+
         $scope.loading = false;
         $scope.$apply();
       }
     });
-  }).
-  error(function(data, status) {
-    if (status == 401) {
-      notify('Forbidden', 'Authentication required to change permissions for '+dirname(uri));
-    } else if (status == 403) {
-      notify('Forbidden', 'You are not allowed to change permissions for '+dirname(uri));
-    } else {
-      notify('Failed - HTTP '+status, data, 5000);
-    }
-  });
+  } else {
+    $scope.loading = false;
+    var policy = {};
+    policy.webid = FOAF("Agent").uri;
+    policy.cat = 'other';
+    policy.isGroup = true;
+    policy.modes = $scope.findModes();
+    $scope.policies.push(policy);
+  }
   
   $scope.serializeTurtle = function () {
     var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
@@ -750,12 +819,12 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
       for (var i=0; i<$scope.policies.length;i++) {
         g.add($rdf.sym("#"+i), RDF("type"), WAC('Authorization'));
         g.add($rdf.sym("#"+i), WAC("accessTo"), $rdf.sym(decodeURIComponent($scope.uri)));
-        if ($scope.policies[i].isGroup === true) {
+        if ($scope.policies[i].isGroup && $scope.policies[i].isGroup === true) {
           g.add($rdf.sym("#"+i), WAC("agentClass"), $rdf.sym($scope.policies[i].webid));
         } else {
           g.add($rdf.sym("#"+i), WAC("agent"), $rdf.sym($scope.policies[i].webid));
         }
-        if ($scope.policies[i].defaultForNew === true) {
+        if ($scope.policies[i].defaultForNew && $scope.policies[i].defaultForNew === true) {
           g.add($rdf.sym("#"+i), WAC("defaultForNew"), $rdf.sym(decodeURIComponent($scope.uri))); 
         }
         if ($scope.policies[i].cat == "owner" && $scope.aclURI.length > 0) {
@@ -771,6 +840,7 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
         }
       }
     }
+    console.log(g.toNT());
     var s = new $rdf.Serializer(g).toN3(g);
     return s;
   };
@@ -820,10 +890,6 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, uri, type) {
   
   $scope.cancelNewUser = function(cat) {
     delete $scope.newUser[cat];
-  };
-  
-  $scope.ok = function () {
-    $modalInstance.close();
   };
 
   $scope.cancel = function () {
