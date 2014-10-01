@@ -1,4 +1,4 @@
-<div class="container">
+<div>
   <div class="topbar box-shadow" ng-show="path">
     <div class="pull-left white vmiddle" ng-hide="notifStatus=='granted'"><h1><button ng-click="authorizeNotifications()" class="btn btn-primary"><i class="fa fa-bullhorn fa-2x white vmiddle" ng-class="notifStatus=='granted'?'orange':''"></i> Enable notifications</button></h1></div>
     <div>
@@ -13,6 +13,9 @@
               <li><a href ng-click="openNewUpload(path)"><i class="fa fa-2x fa-cloud-upload fa-fw vmiddle"></i> Upload</a></li>
             </ul>
           </div>
+        </td>
+        <td class="vtop">
+          <button type="button" class="btn btn-info" tooltip-placement="bottom" tooltip="Pick a different storage location" ng-click="changeLocation('/list/')"><i class="fa fa-2x fa-database white"></i></button>
         </td>
         <td>
           <div id="crumbs" class="collapse navbar-collapse">
@@ -41,39 +44,37 @@
     </div>
   </div>
   
-  <div ng-cloak class="col-md-12" ng-show="listLocation === true">  
-    <div class="index">
-      <table class="box-shadow">
-        <thead>
-            <th class="filename">Name</th>
-            <th>Size</th>
-            <th>Modified</th>
-            <th class="right">More</th>
-        </thead>
-        <tr ng-show="emptyDir">
-          <td colspan="4"><h2>No files found</h2></td>
-        </tr>
-        <tr ng-repeat="res in resources|orderBy:['type','name'] track by res.id">
-            <td colspan="{{res.type==='-'?3:1}}">
-              <a href="{{res.path}}" target="{{res.type=='File'?'_blank':''}}"><i class="fa fa-fw vmiddle" ng-class="res.type=='Directory'||res.type==='-'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a>
-            </td>
-            <td ng-hide="res.type==='-'">{{res.size|fileSize}}</td>
-            <td ng-hide="res.type==='-'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}">{{res.mtime|fromNow}}</div></td>
-            <td class="right">
-                <div class="btn-group" dropdown is-open="status.isopen">
-                  <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
-                    <i class="fa fa-angle-double-down"></i>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-right left" role="menu">
-                    <!-- <li><a ng-show="res.type != 'Directory'"><i class="fa fa-2x fa-pencil-square-o fa-fw vmiddle"></i> View/Edit</a></li> -->
-                    <li><a ng-click="openACLEditor(res.uri, res.type)"><i class="fa fa-2x fa-unlock-alt fa-fw vmiddle"></i> Permissions</a></li>
-                    <li><a ng-click="openDelete(res.uri)"><i class="fa fa-2x fa-trash-o fa-fw vmiddle"></i> Delete</a></li>
-                  </ul>
-                </div>
-            </td>
-        </tr>
-      </table>
-    </div>
+  <div class="index" ng-show="listLocation === true">
+    <table class="box-shadow">
+      <thead>
+          <th class="filename">Name</th>
+          <th>Size</th>
+          <th>Modified</th>
+          <th class="right">More</th>
+      </thead>
+      <tr ng-show="emptyDir">
+        <td colspan="4"><h2>No files found</h2></td>
+      </tr>
+      <tr ng-repeat="res in resources|orderBy:['type','name'] track by res.id">
+          <td colspan="{{res.type==='-'?3:1}}">
+            <a href="{{res.path}}" target="{{res.type=='File'?'_blank':''}}"><i class="fa fa-fw vmiddle" ng-class="res.type=='Directory'||res.type==='-'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a>
+          </td>
+          <td ng-hide="res.type==='-'">{{res.size|fileSize}}</td>
+          <td ng-hide="res.type==='-'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}">{{res.mtime|fromNow}}</div></td>
+          <td class="right">
+              <div class="btn-group" dropdown is-open="status.isopen">
+                <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
+                  <i class="fa fa-angle-double-down"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right left" role="menu">
+                  <!-- <li><a ng-show="res.type != 'Directory'"><i class="fa fa-2x fa-pencil-square-o fa-fw vmiddle"></i> View/Edit</a></li> -->
+                  <li><a ng-click="openACLEditor(res.uri, res.type)"><i class="fa fa-2x fa-unlock-alt fa-fw vmiddle"></i> Permissions</a></li>
+                  <li><a ng-click="openDelete(res.uri)"><i class="fa fa-2x fa-trash-o fa-fw vmiddle"></i> Delete</a></li>
+                </ul>
+              </div>
+          </td>
+      </tr>
+    </table>
   </div>
 
   <!-- New dir modal -->
@@ -92,7 +93,7 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" ng-click="newDir(dirName)">OK</button>
-          <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+          <button class="btn btn-default" ng-click="cancel()">Cancel</button>
         </div>
     </div>
   </script>
@@ -114,7 +115,7 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" ng-click="newFile(fileName)">OK</button>
-          <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+          <button class="btn btn-default" ng-click="cancel()">Cancel</button>
         </div>
     </div>
   </script>
@@ -169,7 +170,7 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" ng-click="deleteResource(resource)">Yes</button>
-          <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+          <button class="btn btn-default" ng-click="cancel()">Cancel</button>
         </div>
     </div>
   </script>
@@ -206,13 +207,13 @@
                 </div>
                 <div class="spacer">
                   <div class="policy" ng-show="newUser['owner']">
-                    <input class="new-user" type="text" ng-focus="isFocused" ng-model="newUser['owner'].webid" typeahead="match.webid as match.name for match in lookupWebID($viewValue)|filter:{name:$viewValue}|limitTo:8" typeahead-loading="searchloading" typeahead-min-length="2" typeahead-wait-ms="200" typeahead-on-select="addNewUser('owner', $item.webid)"/>
+                    <input class="new-user vmiddle" type="text" ng-focus="isFocused" ng-model="newUser['owner'].webid" typeahead="match.webid as match.name for match in lookupWebID($viewValue)|filter:{name:$viewValue}|limitTo:8" typeahead-loading="searchloading" typeahead-min-length="2" typeahead-wait-ms="200" typeahead-on-select="addNewUser('owner', $item.webid)"/>
                     <img ng-src="assets/loading.gif" ng-show="searchloading" />
-                    <button class="btn btn-sm btn-primary" ng-click="addNewUser('owner', newUser['owner'].webid)"><i class="fa fa-plus"></i></button>
-                    <button class="btn btn-sm" ng-click="cancelNewUser('owner')">Cancel</button>
+                    <button class="btn btn-sm btn-primary" ng-click="addNewUser('owner', newUser['owner'].webid)"><i class="fa fa-2x fa-check-circle-o"></i></button>
+                    <button class="btn btn-sm" ng-click="cancelNewUser('owner')"><i class="fa fa-2x fa-times-circle-o"></i></button>
                     <br/>
                   </div>
-                  <button class="btn btn-primary" ng-click="showNewUser('owner')">Add</button>
+                  <button class="btn btn-primary" ng-click="showNewUser('owner')" ng-hide="newUser['owner']">Add</button>
                 </div>
               </td>
             </tr>
@@ -241,13 +242,13 @@
                 </div>
                 <div class="spacer">
                   <div class="policy" ng-show="newUser['others']">
-                    <input class="new-user" type="text" ng-focus="isFocused" ng-model="newUser['others'].webid" typeahead="match.webid as match.name for match in lookupWebID($viewValue)|filter:{name:$viewValue}|limitTo:8" typeahead-loading="searchloading" typeahead-min-length="2" typeahead-wait-ms="200" typeahead-on-select="addNewUser('others', $item.webid)"/>
+                    <input class="new-user vmiddle" type="text" ng-focus="isFocused" ng-model="newUser['others'].webid" typeahead="match.webid as match.name for match in lookupWebID($viewValue)|filter:{name:$viewValue}|limitTo:8" typeahead-loading="searchloading" typeahead-min-length="2" typeahead-wait-ms="200" typeahead-on-select="addNewUser('others', $item.webid)"/>
                     <img ng-src="assets/loading.gif" ng-show="searchloading" />
-                    <button class="btn btn-sm btn-primary" ng-click="addNewUser('others', newUser['others'].webid)"><i class="fa fa-plus"></i></button>
-                    <button class="btn btn-sm" ng-click="cancelNewUser('others')">Cancel</button>
+                    <button class="btn btn-sm btn-primary" ng-click="addNewUser('others', newUser['others'].webid)"><i class="fa fa-2x fa-check-circle-o"></i></button>
+                    <button class="btn btn-sm" ng-click="cancelNewUser('others')"><i class="fa fa-2x fa-times-circle-o"></i></button>
                     <br/>
                   </div>
-                  <button class="btn btn-primary" ng-click="showNewUser('others')">Add</button>
+                  <button class="btn btn-primary" ng-click="showNewUser('others')" ng-hide="newUser['others']">Add</button>
                 </div>
               </td>
             </tr>
@@ -274,7 +275,7 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" ng-click="setAcl()">Set permissions</button>
-          <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+          <button class="btn btn-default" ng-click="cancel()">Cancel</button>
         </div>
     </div>
   </script>
