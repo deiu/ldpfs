@@ -200,7 +200,13 @@
                   <div class="pull-left">
                     <img ng-src="assets/loading.gif" ng-show="policy.loading" />
                     <button class="btn btn-sm" ng-click="removeUser(policy.uri, policy.webid)" ng-hide="policy.loading"><i class="fa fa-trash-o orange"></i></button>
-                    <a href="{{policy.webid}}" target="_blank">{{trunc(policy.fullname, 35)}}</a>
+                    <a href="{{policy.webid}}" target="_blank">{{trunc(policy.fullname, 24)}}</a>                    
+                  </div>
+                  <div class="boxes pull-right">
+                    <div ng-show="resType!='File'">
+                      <input type="checkbox" id="{{policy.$$hashKey}}" ng-model="policy.defaultForNew"/><label for="{{policy.$$hashKey}}" class="mode-label" tooltip-placement="bottom" tooltip="Applies by default for all contents within this directory">Default</label>
+                    </div>
+                    <br/>
                   </div>
                   <br/>
                 </div>
@@ -230,12 +236,16 @@
                   <div class="pull-left">
                     <img ng-src="assets/loading.gif" ng-show="policy.loading" />
                     <button class="btn btn-sm" ng-click="removeUser(policy.uri, policy.webid)" ng-hide="policy.loading"><i class="fa fa-trash-o orange"></i></button>
-                    <a href="{{policy.webid}}" target="_blank">{{trunc(policy.fullname, 35)}}</a>
+                    <a href="{{policy.webid}}" target="_blank">{{trunc(policy.fullname, 24)}}</a>
                   </div>
                   <div class="boxes pull-right">
                       <input type="checkbox" ng-model="policy.modes.Read"/><div class="mode-label">Read</div>
                       <input type="checkbox" ng-model="policy.modes.Write"/><div class="mode-label">Write</div>
                       <input type="checkbox" ng-model="policy.modes.Append"/><div class="mode-label" tooltip-placement="bottom" tooltip="Able to write without reading or deleting.">Append</div>
+                      <div ng-show="resType!='File'">
+                        <input type="checkbox" id="{{policy.$$hashKey}}" ng-model="policy.defaultForNew"/><label for="{{policy.$$hashKey}}" class="mode-label" tooltip-placement="bottom" tooltip="Applies by default for all contents within this directory">Default</label>
+                      </div>
+                      <br/>
                   </div>
                   <br/>
                 </div>
@@ -262,10 +272,14 @@
               </td>
               <td class="vtop policies">
                 <div ng-repeat="policy in policies|filter:{cat: 'any'}|limitTo:1">
-                  <div class="pull-left">
+                  <div class="boxes pull-right">
                       <input type="checkbox" ng-model="policy.modes.Read"/><div class="mode-label">Read</div>
                       <input type="checkbox" ng-model="policy.modes.Write"/><div class="mode-label">Write</div>
                       <input type="checkbox" ng-model="policy.modes.Append"/><div class="mode-label" tooltip-placement="bottom" tooltip="Able to write without reading or deleting.">Append</div>
+                      <div ng-show="resType!='File'">
+                        <input type="checkbox" id="{{policy.$$hashKey}}" ng-model="policy.defaultForNew"/><label for="{{policy.$$hashKey}}" class="mode-label" tooltip-placement="bottom" tooltip="Applies by default for all contents within this directory">Default</label>
+                      </div>
+                      <br/>
                   </div>
                 </div>
               </td>
