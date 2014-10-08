@@ -287,7 +287,16 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" ng-click="setAcl()" ng-disabled="disableOk">Set permissions</button>
+          <button class="btn btn-primary" ng-click="setAcl()" ng-disabled="disableOk">
+            <span ng-hide="disableOk">
+              Save 
+            </span>
+             
+            <span ng-show="disableOk">
+              Saving
+              <i class="fa fa-spinner fa-spin"></i>
+            </span>
+          </button>
           <button class="btn btn-default" ng-click="cancel()">Cancel</button>
         </div>
     </div>
