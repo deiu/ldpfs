@@ -447,16 +447,16 @@ angular.module( 'App.list', [
   };
   //File editor dialog
   $scope.openFileEditor = function (uri) {
-	  $scope.uri = uri;
-	  var modalInstance = $modal.open({
-      templateUrl: 'fileEditor.html',
-      controller: ModalFileEditorCtrl,
-      size: 'sm',
-	  resolve: { 
+    $scope.uri = uri;
+    var modalInstance = $modal.open({
+    templateUrl: 'fileEditor.html',
+    controller: ModalFileEditorCtrl,
+    size: 'sm',
+    resolve: { 
         uri: function () {
           return uri;
         }
-	  }
+    }
     });
     modalInstance.result.then($scope.updateFile);
   };
@@ -675,21 +675,20 @@ var ModalFileEditorCtrl = function ($scope, $modalInstance, uri, $http) {
   $scope.cancel = function () {
     $modalInstance.dismiss('cancel');
   };
-  
+
   $http({
     method: 'GET', 
     url: uri,
-    data: '',
     headers: {
-      'Accept': 'text/turtle',
+      'Accept': 'text/turtle'
     },
     withCredentials: true
   }).
   success(function(data, status, headers) {
     if (status == 200 || status == 201) {
       // Load the rdf to the textarea
-	  $("#fileContent").val(data);
-	  notify('Success', 'Resource retrieved.');
+    $("#fileContent").val(data);
+    notify('Success', 'Resource retrieved.');
     }
   }).
   error(function(data, status) {
