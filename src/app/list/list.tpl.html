@@ -69,6 +69,7 @@
                   <!-- <li><a ng-show="res.type != 'Directory'"><i class="fa fa-2x fa-pencil-square-o fa-fw vmiddle"></i> View/Edit</a></li> -->
                   <li><a ng-click="openACLEditor(resources, res.uri, res.type)"><i class="fa fa-2x fa-unlock-alt fa-fw vmiddle"></i> Permissions</a></li>
                   <li><a ng-click="openDelete(res.uri)"><i class="fa fa-2x fa-trash-o fa-fw vmiddle"></i> Delete</a></li>
+                  <li><a ng-click="openFileEditor(res.uri)"><i class="fa fa-2x fa-pencil fa-fw vmiddle"></i> Edit</a></li>
                 </ul>
               </div>
           </td>
@@ -118,6 +119,28 @@
         </div>
     </div>
   </script>
+  
+  <!-- File editor modal -->
+  <script type="text/ng-template" id="fileEditor.html">
+    <div>
+      <div class="modal-header">
+            <h3 class="modal-title">File Editor</h3>
+        </div>
+        <div class="modal-body">
+          <form name="newFileContent">
+            <fieldset>
+              <textarea id="fileContent" name="fileContent" class="nginput-new" ng-keypress="($event.which === 13)?updateFile(fileContent):0"></textarea>
+              <!-- <span ng-hide="newFileName.fileName.$valid">Only use: a-z A-Z 0-9 _ - .</span> -->
+            </fieldset>
+          </form>
+          <br/><small class="orange">Warning: any changes to this file will overwrite it!</small>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" ng-click="updateFile(fileContent)">Save</button>
+          <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+        </div>
+    </div>
+    </script>
 
   <!-- Upload file modal -->
   <script type="text/ng-template" id="uploadfiles.html">
