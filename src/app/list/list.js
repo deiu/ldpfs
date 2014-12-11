@@ -687,8 +687,7 @@ var ModalFileEditorCtrl = function ($scope, $modalInstance, uri, $http) {
   success(function(data, status, headers) {
     if (status == 200 || status == 201) {
       // Load the rdf to the textarea
-    $("#fileContent").val(data);
-    notify('Success', 'Resource retrieved.');
+      $("#fileContent").val(data);
     }
   }).
   error(function(data, status) {
@@ -697,7 +696,7 @@ var ModalFileEditorCtrl = function ($scope, $modalInstance, uri, $http) {
     } else if (status == 403) {
       notify('Forbidden', 'You are not allowed to edit the resource.');
     } else {
-      notify('Failed '+status, data);
+      notify('Failed', status + " " + data);
     }
   });  
 };
