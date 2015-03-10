@@ -1,25 +1,58 @@
-var getProfile = function(scope, uri, profile) {
+var getProfile = function(scope, uri, profile, forWebID) {
   var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
   var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+  var OWL = $rdf.Namespace("http://www.w3.org/2002/07/owl#");
+  var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+
   var g = $rdf.graph();
   var f = $rdf.fetcher(g, TIMEOUT);
   // add CORS proxy
   $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
+  var webid = (forWebID)?forWebID:uri;
   var docURI = (uri.indexOf('#') >= 0)?uri.slice(0, uri.indexOf('#')):uri;
-  var webidRes = $rdf.sym(uri);
+  var webidRes = $rdf.sym(webid);
   profile.loading = true;
 
   // fetch user data
   return f.nowOrWhenFetched(docURI,undefined,function(ok, body) {
     if (!ok) {
-      profile.uri = uri;
-      profile.name = uri;
+      profile.uri = webid;
+      // if (!profile.name || profile.name.length === 0 || !forWebID) {
+      //   profile.name = webid;
+      // }
       console.log('Warning - profile not found.');
       profile.loading = false;
       scope.$apply();
       return false;
     } else {
+      if (!forWebID) {
+        var sameAs = g.statementsMatching(webidRes, OWL('sameAs'), undefined);
+        if (sameAs.length > 0) {
+          sameAs.forEach(function(same){
+            if (same['object']['value'].length > 0) {
+              getProfile(scope, same['object']['value'], profile, webid);
+            }
+          });
+        }
+        var seeAlso = g.statementsMatching(webidRes, OWL('seeAlso'), undefined);
+        if (seeAlso.length > 0) {
+          seeAlso.forEach(function(see){
+            if (see['object']['value'].length > 0) {
+              getProfile(scope, see['object']['value'], profile, webid);
+            }
+          });
+        }
+        var prefs = g.statementsMatching(webidRes, SPACE('preferencesFile'), undefined);
+        if (prefs.length > 0) {
+          prefs.forEach(function(pref){
+            if (pref['object']['value'].length > 0) {
+              getProfile(scope, pref['object']['value'], profile, webid);
+            }
+          });
+        }
+      }
+
       var classType = (g.any(webidRes, RDF('type')).value == FOAF('Group').value)?'agentClass':'agent';
       // get some basic info
       var name = g.any(webidRes, FOAF('name'));
@@ -34,13 +67,19 @@ var getProfile = function(scope, uri, profile) {
         if (depic) {
           pic = depic.value;
         } else {
-          pic = 'assets/generic_photo.png';
+          pic = '';
         }
       }
 
-      profile.classtype = classType;
-      profile.fullname = name;
-      profile.picture = pic;
+      if (!profile.classtype || profile.classtype.length === 0) {
+        profile.classtype = classType;
+      }
+      if (!profile.fullname || profile.fullname.length === 0 || profile.fullname === webid) {
+        profile.fullname = name;
+      }
+      if (!profile.picture || profile.picture.length === 0) {
+        profile.picture = pic;
+      }
       profile.loading = false;
 
       scope.$apply();
