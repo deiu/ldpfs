@@ -164,7 +164,7 @@
           </tr>
           <tr ng-repeat="file in selectedFiles track by $index" ng-class="progress[file.name] == 100?'done':''">
             <td>{{file.name|truncate:25}}</td>
-            <td><progressbar value="progress[file.name]"></progressbar></td>
+            <td><div tooltip-placement="bottom" tooltip="Uploading...{{progress[file.name]}}%"><progressbar value="progress[file.name]"></progressbar></div></td>
             <td class="pull-right">
               <button ng-hide="progress[file.name] == 100" class="btn btn-mini btn-default" ng-click="abort(file.name)"><i class="fa fa-2x fa-times"></i></button>
               <button ng-show="progress[file.name] == 100" class="btn btn-mini btn-default" ng-click="remove(file.name)"><i class="fa fa-2x fa-trash-o"></i></button>
@@ -173,7 +173,7 @@
         </table>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" ng-click="clearUploaded()" ng-show="selectedFiles.length > 0">Clear uploaded</button>
+        <button class="btn btn-default" ng-click="clearUploaded()" ng-show="selectedFiles.length > 0">Clear files</button>
         <button class="btn btn-default" ng-click="cancel()">Close</button>
       </div>
     </div>
