@@ -3,7 +3,7 @@
     <div>
       <table class="create-new">
       <tr>
-        <td class="vtop">
+        <td class="vtop pull-left">
           <div class="btn-group" dropdown>
             <button type="button" class="btn btn-success dropdown-toggle" ng-disabled="disabled" tooltip-placement="bottom" tooltip="New..."><i class="fa fa-2x fa-plus"></i></button>
             <ul class="dropdown-menu" role="menu">
@@ -13,16 +13,21 @@
             </ul>
           </div>
         </td>
-        <td class="vtop">
+        <td class="vtop pull-left">
           <button type="button" class="btn btn-info" tooltip-placement="bottom" tooltip="Pick a different storage location" ng-click="changeLocation('/list/')"><i class="fa fa-2x fa-database white"></i></button>
         </td>
-        <td>
+        <td class="pull-left">
           <div id="crumbs" class="collapse navbar-collapse">
             <ul>
               <li ng-repeat="crumb in breadCrumbs">
                 <a href="{{crumb.uri}}"><i class="fa white" ng-class="$first?'fa-home':'fa-folder-open-o'"></i><span class="white"> {{crumb.name}}</span></a>
               </li>
             </ul>
+          </div>
+        </td>
+        <td class="pull-right vmiddle white">
+          <div tooltip-placement="bottom" tooltip="{{userProfile.fullname}}" class="avatar-frame" ng-show="userProfile.webid">
+            <a href="{{userProfile.webid}}" target="_blank"><img ng-src="{{userProfile.picture}}"></a>
           </div>
         </td>
       </tr>
