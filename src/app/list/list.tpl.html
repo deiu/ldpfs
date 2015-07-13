@@ -27,7 +27,7 @@
         </td>
         <td class="pull-right vmiddle white">
           <div tooltip-placement="bottom" tooltip="{{userProfile.fullname}}" class="avatar-frame" ng-show="userProfile.webid">
-            <a href="{{userProfile.webid}}" target="_blank"><img ng-src="{{userProfile.picture}}"></a>
+            <a href="{{userProfile.webid|toURL}}" target="_blank"><img ng-src="{{userProfile.picture}}"></a>
           </div>
         </td>
       </tr>
