@@ -14,7 +14,7 @@
           </div>
         </td>
         <td class="vtop pull-left">
-          <button type="button" class="btn btn-info" tooltip-placement="bottom" tooltip="Pick a different storage location" ng-click="changeLocation('/list/')"><i class="fa fa-2x fa-database white"></i></button>
+          <button type="button" class="btn btn-info" tooltip-placement="bottom" tooltip="Pick a different storage location" ng-click="openNewLocation()"><i class="fa fa-2x fa-database white"></i></button>
         </td>
         <td class="pull-left">
           <div id="crumbs" class="collapse navbar-collapse">
@@ -34,7 +34,7 @@
     </table>
     </div>
   </div>
-  
+
   <div class="col-md-12" ng-show="listLocation === false">
     <div class="clear-70"></div>
     <h1>Please provide a location for the data server:</h1>
@@ -47,7 +47,7 @@
       </form>
     </div>
   </div>
-  
+
   <div class="index" ng-show="listLocation === true">
     <table class="box-shadow">
       <thead>
@@ -82,6 +82,27 @@
     </table>
   </div>
 
+
+  <!-- New location modal -->
+  <script type="text/ng-template" id="newlocation.html">
+    <div>
+      <div class="modal-header">
+            <h3 class="modal-title">Please provide a location for the data server:</h3>
+        </div>
+        <div class="modal-body">
+          <form name="newLocName">
+            <fieldset>
+              <input type="text" ng-model="locName" name="locName" id="locName" class="nginput pull-left" placeholder="https://example.org/" ng-focus="isFocused" ng-keypress="($event.which === 13)?newLoc(locName):0">
+            </fieldset>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" ng-click="newLoc(locName)">OK</button>
+          <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+        </div>
+    </div>
+  </script>
+
   <!-- New dir modal -->
   <script type="text/ng-template" id="newdir.html">
     <div>
@@ -91,7 +112,7 @@
         <div class="modal-body">
           <form name="newDirName">
             <fieldset>
-              <input type="text" ng-model="dirName" name="dirName" id="dirName" class="nginput" placeholder="dir name.." ng-focus="isFocused" ng-keypress="($event.which === 13)?newDir(dirName):0" />
+              <input type="text" ng-model="dirName" name="dirName" id="dirName" class="nginput" placeholder="dir name.." ng-focus="isFocused" ng-keypress="($event.which === 13)?newDir(dirName):0">
               <span ng-hide="newDirName.dirName.$valid">Only use: a-z A-Z 0-9 _ -</span>
             </fieldset>
           </form>
@@ -124,7 +145,7 @@
         </div>
     </div>
   </script>
-  
+
   <!-- File editor modal -->
   <script type="text/ng-template" id="fileEditor.html">
     <div>
@@ -201,13 +222,13 @@
         </div>
     </div>
   </script>
-  
+
   <!-- ACL editor modal -->
   <script type="text/ng-template" id="acleditor.html">
     <div>
       <div class="modal-header">
         <h3 class="modal-title">Permissions for <strong>{{resource}}</strong></h3>
-        <img ng-src="assets/loading.gif" ng-show="loading">  
+        <img ng-src="assets/loading.gif" ng-show="loading">
       </div>
         <div class="modal-body">
           <table class="full-width">
@@ -228,7 +249,7 @@
                   <div class="pull-left">
                     <img ng-src="assets/loading.gif" ng-show="policy.loading" />
                     <button class="btn btn-sm" ng-click="removeUser(policy.uri, policy.webid)" ng-hide="policy.loading"><i class="fa fa-trash-o orange"></i></button>
-                    <a href="{{policy.webid}}" target="_blank">{{trunc(policy.fullname, 24)}}</a>                    
+                    <a href="{{policy.webid}}" target="_blank">{{trunc(policy.fullname, 24)}}</a>
                   </div>
                   <br>
                 </div>
@@ -305,9 +326,9 @@
         <div class="modal-footer">
           <button class="btn btn-primary" ng-click="setAcl()" ng-disabled="disableOk">
             <span ng-hide="disableOk">
-              Save 
+              Save
             </span>
-             
+
             <span ng-show="disableOk">
               Saving
               <i class="fa fa-spinner fa-spin"></i>
@@ -323,5 +344,5 @@
         <span bind-html-unsafe="match.name | typeaheadHighlight:query"></span>
     </a>
   </script>
-  
+
 </div>
