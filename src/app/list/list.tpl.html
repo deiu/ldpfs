@@ -61,7 +61,7 @@
       </tr>
       <tr ng-repeat="res in resources|orderBy:['type','name'] track by res.id">
           <td colspan="{{res.type==='-'?3:1}}">
-            <a href="{{res.path}}" target="{{res.type=='File'?'_blank':''}}"><i class="fa fa-fw vmiddle" ng-class="res.type=='Directory'||res.type==='-'?'fa-folder-open-o':'fa-file-o'"></i> {{res.name}}</a>
+            <a href="{{res.path}}" target="{{res.type=='File'?'_blank':''}}"><i class="fa fa-fw vmiddle" ng-class="res.type=='Directory'||res.type==='-'?'fa-folder-open-o':'fa-file-o'"></i>{{res.name}}</a>
           </td>
           <td ng-hide="res.type==='-'">{{res.size|fileSize}}</td>
           <td ng-hide="res.type==='-'"><div tooltip-placement="bottom" tooltip="{{res.mtime|classicDate}}">{{res.mtime|fromNow}}</div></td>
@@ -298,9 +298,9 @@
                     </div>
                   </div>
                   <div class="boxes pull-right">
-                      <input type="checkbox" ng-model="policy.modes.Read"/><div class="mode-label">Read</div>
-                      <input type="checkbox" ng-model="policy.modes.Write"/><div class="mode-label">Write</div>
-                      <input type="checkbox" ng-model="policy.modes.Append"/><div class="mode-label" tooltip-placement="bottom" tooltip="Able to write without reading or deleting.">Append</div>
+                      <input type="checkbox" ng-model="policy.modes.Read" class="inline-block"><div class="inline-block mode-label">Read</div>
+                      <input type="checkbox" ng-model="policy.modes.Write" class="inline-block"><div class="inline-block mode-label">Write</div>
+                      <input type="checkbox" ng-model="policy.modes.Append" class="inline-block"><div class="inline-block mode-label" tooltip-placement="bottom" tooltip="Able to write without reading or deleting.">Append</div>
                       <br/>
                   </div>
                   <br/>
@@ -337,9 +337,9 @@
               <td class="vtop policies">
                 <div ng-repeat="policy in policies|filter:{cat: 'any'}|limitTo:1">
                   <div class="boxes pull-right">
-                      <input type="checkbox" ng-model="policy.modes.Read"/><div class="mode-label">Read</div>
-                      <input type="checkbox" ng-model="policy.modes.Write"/><div class="mode-label">Write</div>
-                      <input type="checkbox" ng-model="policy.modes.Append"/><div class="mode-label" tooltip-placement="bottom" tooltip="Able to write without reading or deleting.">Append</div>
+                      <input type="checkbox" ng-model="policy.modes.Read" class="inline-block"><div class="inline-block mode-label">Read</div>
+                      <input type="checkbox" ng-model="policy.modes.Write" class="inline-block"><div class="inline-block mode-label">Write</div>
+                      <input type="checkbox" ng-model="policy.modes.Append" class="inline-block"><div class="inline-block mode-label" tooltip-placement="bottom" tooltip="Able to write without reading or deleting.">Append</div>
                       <br/>
                   </div>
                 </div>
