@@ -247,8 +247,9 @@
                 <div class="policy" ng-repeat="policy in policies|filter:{cat: 'owner'}">
                   <div class="pull-left">
                     <img ng-src="assets/loading.gif" ng-show="policy.loading" />
-                    <button class="btn btn-sm" ng-click="removeUser(policy.uri, policy.webid)" ng-hide="policy.loading"><i class="fa fa-trash-o orange"></i></button>
-                    <a href="{{policy.webid}}" target="_blank">{{trunc(policy.fullname, 24)}}</a>
+                    <button class="btn btn-sm" ng-click="removePolicy(policy.$$hashKey)" ng-hide="policy.loading"><i class="fa fa-trash-o orange"></i></button>
+                    <a href="{{policy.webid}}" target="_blank" ng-show="policy.webid">{{trunc(policy.fullname, 24)}}</a>
+                    <div class="inline-block" ng-show="policy.key">Key: {{trunc(policy.fullname, 24)}}</div>
                   </div>
                   <br>
                 </div>
@@ -260,7 +261,15 @@
                     <button class="btn btn-sm" ng-click="cancelNewUser('owner')"><i class="fa fa-2x fa-times-circle-o"></i></button>
                     <br/>
                   </div>
-                  <button class="btn btn-primary" ng-click="showNewUser('owner')" ng-hide="newUser['owner']">Add</button>
+                  <div class="policy" ng-show="newKey['owner']">
+                    <input class="new-user vmiddle" type="text" ng-focus="isFocused" ng-model="newKey['owner'].key">
+                    <button class="btn btn-sm btn-primary" ng-click="generateNewKey(newKey['owner'])" tooltip-placement="bottom" tooltip="Generate a random key"><i class="fa fa-2x fa-key"></i></button>
+                    <button class="btn btn-sm btn-primary" ng-click="addNewKey('owner', newKey['owner'].key)" ng-disabled="newKey['owner'].key.length === 0"><i class="fa fa-2x fa-check-circle-o"></i></button>
+                    <button class="btn btn-sm" ng-click="cancelNewKey('owner')"><i class="fa fa-2x fa-times-circle-o"></i></button>
+                    <br/>
+                  </div>
+                  <button class="btn btn-primary" ng-click="showNewUser('owner')" ng-hide="newUser['owner']">Add user</button>
+                  <button class="btn btn-primary" ng-click="showNewKey('owner')" ng-hide="newKey['owner']">Add key</button>
                 </div>
               </td>
             </tr>
@@ -277,8 +286,9 @@
                 <div class="policy" ng-repeat="policy in policies|filter:{cat: 'others'}">
                   <div class="pull-left">
                     <img ng-src="assets/loading.gif" ng-show="policy.loading" />
-                    <button class="btn btn-sm" ng-click="removeUser(policy.uri, policy.webid)" ng-hide="policy.loading"><i class="fa fa-trash-o orange"></i></button>
-                    <a href="{{policy.webid}}" target="_blank">{{trunc(policy.fullname, 24)}}</a>
+                    <button class="btn btn-sm" ng-click="removePolicy(policy.$$hashKey)" ng-hide="policy.loading"><i class="fa fa-trash-o orange"></i></button>
+                    <a href="{{policy.webid}}" target="_blank" ng-show="policy.webid">{{trunc(policy.fullname, 24)}}</a>
+                    <div class="inline-block" ng-show="policy.key">Key: {{trunc(policy.fullname, 24)}}</div>
                   </div>
                   <div class="boxes pull-right">
                       <input type="checkbox" ng-model="policy.modes.Read"/><div class="mode-label">Read</div>
@@ -296,7 +306,15 @@
                     <button class="btn btn-sm" ng-click="cancelNewUser('others')"><i class="fa fa-2x fa-times-circle-o"></i></button>
                     <br/>
                   </div>
-                  <button class="btn btn-primary" ng-click="showNewUser('others')" ng-hide="newUser['others']">Add</button>
+                  <div class="policy" ng-show="newKey['others']">
+                    <input class="new-user vmiddle" type="text" ng-focus="isFocused" ng-model="newKey['others'].key">
+                    <button class="btn btn-sm btn-primary" ng-click="generateNewKey(newKey['others'])" tooltip-placement="bottom" tooltip="Generate a random key"><i class="fa fa-2x fa-key"></i></button>
+                    <button class="btn btn-sm btn-primary" ng-click="addNewKey('others', newKey['others'].key)" ng-disabled="newKey['others'].key.length === 0"><i class="fa fa-2x fa-check-circle-o"></i></button>
+                    <button class="btn btn-sm" ng-click="cancelNewKey('others')"><i class="fa fa-2x fa-times-circle-o"></i></button>
+                    <br/>
+                  </div>
+                  <button class="btn btn-primary" ng-click="showNewUser('others')" ng-hide="newUser['others']">Add user</button>
+                  <button class="btn btn-primary" ng-click="showNewKey('others')" ng-hide="newKey['others']">Add key</button>
                 </div>
               </td>
             </tr>
