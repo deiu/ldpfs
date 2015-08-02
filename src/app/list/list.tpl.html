@@ -35,9 +35,9 @@
     </div>
   </div>
 
-  <div class="col-md-12" ng-show="listLocation === false">
+  <div class="col-md-12" ng-hide="listLocation">
     <div class="clear-70"></div>
-    <h1>Please provide a location for the data server:</h1>
+    <h1>Please provide a location for the LDP server:</h1>
     <div class="prepare-list">
       <form name="preList">
         <div class="btn-group half-width">
@@ -48,7 +48,7 @@
     </div>
   </div>
 
-  <div class="index" ng-show="listLocation === true">
+  <div class="index" ng-show="listLocation">
     <table class="box-shadow">
       <thead>
           <th class="filename">Name</th>
@@ -57,7 +57,7 @@
           <th class="right">More</th>
       </thead>
       <tr ng-show="emptyDir">
-        <td colspan="4"><h2>No files found</h2></td>
+        <td colspan="4"><h2>Cannot list contents <span ng-show="noPerm">(access denied)</span></h2></td>
       </tr>
       <tr ng-repeat="res in resources|orderBy:['type','name'] track by res.id">
           <td colspan="{{res.type==='-'?3:1}}">
