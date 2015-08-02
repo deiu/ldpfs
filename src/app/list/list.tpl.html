@@ -249,7 +249,11 @@
                     <img ng-src="assets/loading.gif" ng-show="policy.loading" />
                     <button class="btn btn-sm" ng-click="removePolicy(policy.$$hashKey)" ng-hide="policy.loading"><i class="fa fa-trash-o orange"></i></button>
                     <a href="{{policy.webid}}" target="_blank" ng-show="policy.webid">{{trunc(policy.fullname, 24)}}</a>
-                    <div class="inline-block" ng-show="policy.key">Key: {{trunc(policy.fullname, 24)}}</div>
+                    <div class="inline-block" ng-show="policy.key">
+                      Key: {{trunc(policy.fullname, 24)}}
+                      <a href="{{uri}}?key={{policy.key}}" target="_blank">Link</a>
+                    </div>
+
                   </div>
                   <br>
                 </div>
@@ -288,7 +292,10 @@
                     <img ng-src="assets/loading.gif" ng-show="policy.loading" />
                     <button class="btn btn-sm" ng-click="removePolicy(policy.$$hashKey)" ng-hide="policy.loading"><i class="fa fa-trash-o orange"></i></button>
                     <a href="{{policy.webid}}" target="_blank" ng-show="policy.webid">{{trunc(policy.fullname, 24)}}</a>
-                    <div class="inline-block" ng-show="policy.key">Key: {{trunc(policy.fullname, 24)}}</div>
+                    <div class="inline-block" ng-show="policy.key">
+                      Key: {{trunc(policy.fullname, 24)}}
+                      <a href="{{uri}}?key={{policy.key}}" target="_blank">Link</a>
+                    </div>
                   </div>
                   <div class="boxes pull-right">
                       <input type="checkbox" ng-model="policy.modes.Read"/><div class="mode-label">Read</div>
