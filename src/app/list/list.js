@@ -538,7 +538,7 @@ angular.module( 'App.list', [
       var aclURI = (lh['acl'] && lh['acl']['href'].length > 0)?lh['acl']['href']:'';
       // check for relative URIs
       if (aclURI && aclURI.slice(0,4) != 'http') {
-        aclURI = uri+aclURI;
+        aclURI = uri.slice(0, uri.lastIndexOf('/') + 1)+aclURI;
       }
 
       var checkACLfile = function(data, status, headers) {
@@ -1043,7 +1043,7 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, resources, uri, ac
           $scope.policies.push({
             webid: FOAF("Agent").uri,
             cat: 'any',
-            classType: 'agentClass'
+            predicate: 'agentClass'
           });
         }
 
@@ -1086,22 +1086,29 @@ var ModalACLEditor = function ($scope, $modalInstance, $http, resources, uri, ac
         if ($scope.policies[i].cat == 'any' && !$scope.policies[i].modes || (!$scope.policies[i].modes.Read && !$scope.policies[i].modes.Write && !$scope.policies[i].modes.Append)) {
           continue;
         }
-        g.add($rdf.sym("#"+i), RDF("type"), WAC('Authorization'));
-        g.add($rdf.sym("#"+i), WAC("accessTo"), $rdf.sym(decodeURI($scope.uri)));
+        g.add($rdf.sym("#policy"+i), RDF("type"), WAC('Authorization'));
+        g.add($rdf.sym("#policy"+i), WAC("accessTo"), $rdf.sym(decodeURI($scope.uri)));
         var termObj = $rdf.sym($scope.policies[i].webid);
         if ($scope.policies[i].key && $scope.policies[i].key.length > 0) {
           termObj = $rdf.lit($scope.policies[i].key);
         }
-        g.add($rdf.sym("#"+i), WAC($scope.policies[i].predicate), termObj);
+        if (!$scope.policies[i].predicate) {
+          if ($scope.policies[i].webid == FOAF('Agent').uri) {
+            $scope.policies[i].predicate = 'agentClass';
+          } else {
+            $scope.policies[i].predicate = 'agent';
+          }
+        }
+        g.add($rdf.sym("#policy"+i), WAC($scope.policies[i].predicate), termObj);
         if ($scope.resType != 'File') {
-          g.add($rdf.sym("#"+i), WAC("defaultForNew"), $rdf.sym(decodeURI($scope.uri)));
+          g.add($rdf.sym("#policy"+i), WAC("defaultForNew"), $rdf.sym(decodeURI($scope.uri)));
         }
         if ($scope.policies[i].cat == "owner" && $scope.aclURI.length > 0) {
-          g.add($rdf.sym("#"+i), WAC("accessTo"), $rdf.sym(decodeURI($scope.aclURI)));
+          g.add($rdf.sym("#policy"+i), WAC("accessTo"), $rdf.sym(decodeURI($scope.aclURI)));
         }
         for (var mode in $scope.policies[i].modes) {
           if ($scope.policies[i].modes[mode] === true) {
-            g.add($rdf.sym("#"+i), WAC("mode"), WAC(mode));
+            g.add($rdf.sym("#policy"+i), WAC("mode"), WAC(mode));
           }
         }
       }
